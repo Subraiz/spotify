@@ -62,7 +62,7 @@ AuthRouter.get(
 );
 
 // Pass in a refresh token to generate a new access token for an hour
-AuthRouter.post('/api/refresh', async (req, res) => {
+AuthRouter.post('/auth/refresh', async (req, res) => {
   const url = 'https://accounts.spotify.com/api/token';
 
   const { refresh_token } = req.body;
