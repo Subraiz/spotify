@@ -1,4 +1,4 @@
-# Spotify
+# Spotify Project
 
 This project was generated using [Nx](https://nx.dev).
 
@@ -16,9 +16,12 @@ This project was generated using [Nx](https://nx.dev).
 
 3. In order to make sure we always have a valid access token (token that is not expired), each time the user refreshes the page, make a POST call to `/api/auth/refresh` and pass in the refresh token in the body as _refresh_token_
 
-### Getting User information
+### Getting User Data
 
-`In Progress`
+`GET /api/user` <br>
+Pass in the access token as _access_token_ as a query parameter.
+
+> This returns basic user information such as name, email, photo url, and country.
 
 ### Playing With Playlists
 
