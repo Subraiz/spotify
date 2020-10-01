@@ -53,8 +53,8 @@ AuthRouter.get(
     console.log(refreshToken);
 
     const query = querystring.stringify({
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      access_token: accessToken,
+      refresh_token: refreshToken,
     });
     res.redirect('http://localhost:4200/?' + query);
   }
