@@ -4,6 +4,8 @@ This project was generated using [Nx](https://nx.dev).
 
 🔎 **Below is any documentation on which routes you will need to connect the Frontend to.**
 
+_Alternatively you can look at the implementation of the routes https://documenter.getpostman.com/view/8127978/TVRedAP9_
+
 ### How to Authenticate
 
 1. The first route you need access is to is /api/auth/, this will bring you to the Spotify website and ask you to login.
@@ -21,8 +23,16 @@ This project was generated using [Nx](https://nx.dev).
 `GET /api/user` <br>
 Pass in the access token as _access_token_ as a query parameter.
 
-> This returns basic user information such as name, email, photo url, and country.
+> This returns basic user information such as name, email, photo url, and country. Most importantly it gives us user_id as well so this should be set as a cookie or saved in cache.
 
 ### Playing With Playlists
 
-`In Progress`
+`GET /api/playlist/sign`
+Pass in _month_ and _day_ as query parameters.
+
+> This returns both the zodiac sign of the user and the playlist associated with the zodiac sign. The playlist array is consisted of Spotify URIs which can be used with the frontend Web Playback SDK to play music. Docs for the SDK can be found at https://developer.spotify.com/documentation/web-playback-sdk/reference/.
+
+`GET /api/playlist/create`
+Pass in _name_ _description_ _user_id_ _access_token_ _tracks_ as the bod.
+
+> Name of the playlist is required but description is optional. You can get user_id from `GET /api/user` and cache the user_id. You should have access_token from the OAuth step. Tracks are the playlist array returned from `GET /api/playlist/sign`.

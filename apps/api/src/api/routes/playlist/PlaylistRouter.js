@@ -1,4 +1,5 @@
 const PlaylistRouter = require('express').Router();
+const Playlists = require('./Playlists');
 const axios = require('axios');
 
 PlaylistRouter.post('/create', async (req, res) => {
@@ -9,6 +10,7 @@ PlaylistRouter.post('/create', async (req, res) => {
     public,
     collaborative,
     description,
+    tracks,
   } = req.body;
   const data = {
     name,
@@ -16,9 +18,9 @@ PlaylistRouter.post('/create', async (req, res) => {
     public: public || false,
     collaborative: collaborative || false,
   };
-  const url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
+  let url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
 
-  const playlists = await getPlaylists(access_token);
+  const playlists = await getUserPlaylists(access_token);
   let playlistExists = playlists.filter(function (playlist) {
     return playlist.name === name;
   })[0];
@@ -34,8 +36,19 @@ PlaylistRouter.post('/create', async (req, res) => {
         'Content-Type': 'application/json',
       },
     })
-      .then((response) => {
-        res.status(200).send({ message: `Playlist ${name} has been created` });
+      .then(async (response) => {
+        const playlist_id = response.data.id;
+        url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+        await axios({
+          method: 'POST',
+          url,
+          data: { uris: tracks },
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+            'Content-Type': 'application/json',
+          },
+        });
+        res.status(200).send({ message: `Playlist ${name} has been created.` });
       })
       .catch((err) => {
         res.status(400).send({
@@ -49,19 +62,28 @@ PlaylistRouter.post('/create', async (req, res) => {
 
 PlaylistRouter.get('/user', async (req, res) => {
   const access_token = req.query.access_token;
-  const playlists = await getPlaylists(access_token);
+  const playlists = await getUserPlaylists(access_token);
 
   res.send(playlists);
 });
 
-const getPlaylists = async (access_token) => {
+PlaylistRouter.get('/sign', async (req, res) => {
+  const month = req.query.month;
+  const day = req.query.day;
+  const zodiacSign = await getZodiacSign(month, day);
+  const playlist = Playlists[zodiacSign];
+
+  if (day !== undefined && month !== undefined) {
+    res.status(200).send({ sign: zodiacSign, playlist: playlist });
+  }
+});
+
+// Helper function to get user playlists
+const getUserPlaylists = async (access_token) => {
   const limit = 50;
   const url = 'https://api.spotify.com/v1/me/playlists';
 
-  console.log(access_token);
-
   let playlists = [];
-
   await axios({
     method: 'GET',
     url,
@@ -78,5 +100,51 @@ const getPlaylists = async (access_token) => {
 
   return playlists;
 };
+
+// Helper function to find zodiac sign and get associated playlist
+function getZodiacSign(month, day) {
+  var zodiacSigns = {
+    capricorn: 'capricorn',
+    aquarius: 'aquarius',
+    pisces: 'pisces',
+    aries: 'aries',
+    taurus: 'taurus',
+    gemini: 'gemini',
+    cancer: 'cancer',
+    leo: 'leo',
+    virgo: 'virgo',
+    libra: 'libra',
+    scorpio: 'scorpio',
+    sagittarius: 'sagittarius',
+  };
+
+  console.log(month, day);
+
+  if ((month == 1 && day <= 20) || (month == 12 && day >= 22)) {
+    return zodiacSigns.capricorn;
+  } else if ((month == 1 && day >= 21) || (month == 2 && day <= 18)) {
+    return zodiacSigns.aquarius;
+  } else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) {
+    return zodiacSigns.pisces;
+  } else if ((month == 3 && day >= 21) || (month == 4 && day <= 20)) {
+    return zodiacSigns.aries;
+  } else if ((month == 4 && day >= 21) || (month == 5 && day <= 20)) {
+    return zodiacSigns.taurus;
+  } else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) {
+    return zodiacSigns.gemini;
+  } else if ((month == 6 && day >= 22) || (month == 7 && day <= 22)) {
+    return zodiacSigns.cancer;
+  } else if ((month == 7 && day >= 23) || (month == 8 && day <= 23)) {
+    return zodiacSigns.leo;
+  } else if ((month == 8 && day >= 24) || (month == 9 && day <= 23)) {
+    return zodiacSigns.virgo;
+  } else if ((month == 9 && day >= 24) || (month == 10 && day <= 23)) {
+    return zodiacSigns.libra;
+  } else if ((month == 10 && day >= 24) || (month == 11 && day <= 22)) {
+    return zodiacSigns.scorpio;
+  } else if ((month == 11 && day >= 23) || (month == 12 && day <= 21)) {
+    return zodiacSigns.sagittarius;
+  }
+}
 
 module.exports = PlaylistRouter;
