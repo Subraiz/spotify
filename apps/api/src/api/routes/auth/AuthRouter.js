@@ -23,6 +23,7 @@ passport.use(
   )
 );
 
+// Implement passport to authenticate with Spotify
 AuthRouter.get(
   '/auth',
   passport.authenticate('spotify', {
@@ -37,12 +38,11 @@ AuthRouter.get(
     showDialog: true,
   }),
   (req, res) => {
-    res.send({
-      message: 'Yerr to api!',
-    });
+    // Since there is a redirect this part doesn't get reached
   }
 );
 
+// Execute this function after user sings in with Spotify
 AuthRouter.get(
   callbackPath,
   passport.authenticate('spotify', { failureRedirect: '/login' }),
@@ -50,8 +50,9 @@ AuthRouter.get(
     console.log();
     const { accessToken, refreshToken, profiile } = req._passport.session.user;
 
-    console.log(refreshToken);
+    console.log(accessToken, refreshToken);
 
+    // Redirect back to the frontend and pass in both tokens as querys
     const query = querystring.stringify({
       access_token: accessToken,
       refresh_token: refreshToken,
@@ -61,7 +62,7 @@ AuthRouter.get(
 );
 
 // Pass in a refresh token to generate a new access token for an hour
-AuthRouter.post('/auth/refresh', async (req, res) => {
+AuthRouter.post('/api/refresh', async (req, res) => {
   const url = 'https://accounts.spotify.com/api/token';
 
   const { refresh_token } = req.body;
