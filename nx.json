@@ -21,5 +21,16 @@
       }
     }
   },
-  "projects": {}
+  "projects": {
+    "spotify": {
+      "tags": []
+    },
+    "spotify-e2e": {
+      "tags": [],
+      "implicitDependencies": ["spotify"]
+    },
+    "api": {
+      "tags": []
+    }
+  }
 }
