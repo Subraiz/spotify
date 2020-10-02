@@ -28,11 +28,12 @@ Pass in the access token as _access_token_ as a query parameter.
 ### Playing With Playlists
 
 `GET /api/playlist/sign`
-Pass in _month_ and _day_ as query parameters.
+Pass in _month_ _day_ _access_token_ as query parameters.
 
-> This returns both the zodiac sign of the user and the playlist associated with the zodiac sign. The playlist array is consisted of Spotify URIs which can be used with the frontend Web Playback SDK to play music. Docs for the SDK can be found at https://developer.spotify.com/documentation/web-playback-sdk/reference/.
+> This returns the zodiac sign of the user, playlist_id, playlist tracks, and other additoinal info associated with the zodiac sign. The tracks array is consisted of Spotify URIs which can be used with the frontend Web Playback SDK to play music. Docs for the SDK can be found at https://developer.spotify.com/documentation/web-playback-sdk/reference/.
 
-`GET /api/playlist/create`
-Pass in _name_ _description_ _user_id_ _access_token_ _tracks_ as the bod.
+`GET /api/playlist/save`
+Pass in _user_id_ _playlist_id_ _access_token_ as the body.
 
-> Name of the playlist is required but description is optional. You can get user_id from `GET /api/user` and cache the user_id. You should have access_token from the OAuth step. Tracks are the playlist array returned from `GET /api/playlist/sign`.
+> You can get user_id from `GET /api/user` and cache the user_id. You can get the playlist_id from `GET /api/playlist/sign`. You should have access_token from the OAuth step.
+> This will save the playlist to a user's account. Anyone from TI's team can update the playlist and it will be refelected for all users.
