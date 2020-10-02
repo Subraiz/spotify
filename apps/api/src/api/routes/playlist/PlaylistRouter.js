@@ -2,55 +2,33 @@ const PlaylistRouter = require('express').Router();
 const Playlists = require('./Playlists');
 const axios = require('axios');
 
-PlaylistRouter.post('/create', async (req, res) => {
-  const {
-    user_id,
-    access_token,
-    name,
-    public,
-    collaborative,
-    description,
-    tracks,
-  } = req.body;
-  const data = {
-    name,
-    description,
-    public: public || false,
-    collaborative: collaborative || false,
-  };
-  let url = `https://api.spotify.com/v1/users/${user_id}/playlists`;
+PlaylistRouter.post('/save', async (req, res) => {
+  let { user_id, access_token, playlist_id } = req.body;
 
   const playlists = await getUserPlaylists(access_token);
   let playlistExists = playlists.filter(function (playlist) {
-    return playlist.name === name;
+    return playlist.id === playlist_id;
   })[0];
   playlistExists = playlistExists == undefined ? false : true;
 
+  let url = `https://api.spotify.com/v1/playlists/${playlist_id}/followers`;
   if (!playlistExists) {
     await axios({
-      method: 'POST',
+      method: 'PUT',
       url,
-      data: data,
+      data: { public: false },
       headers: {
         Authorization: 'Bearer ' + access_token,
         'Content-Type': 'application/json',
       },
     })
       .then(async (response) => {
-        const playlist_id = response.data.id;
-        url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
-        await axios({
-          method: 'POST',
-          url,
-          data: { uris: tracks },
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-            'Content-Type': 'application/json',
-          },
-        });
-        res.status(200).send({ message: `Playlist ${name} has been created.` });
+        res
+          .status(200)
+          .send({ message: `Playlist ${playlist_id} has been added.` });
       })
       .catch((err) => {
+        console.log(err.message);
         res.status(400).send({
           message: 'Failed to create playlist, access token expired.',
         });
@@ -63,18 +41,40 @@ PlaylistRouter.post('/create', async (req, res) => {
 PlaylistRouter.get('/user', async (req, res) => {
   const access_token = req.query.access_token;
   const playlists = await getUserPlaylists(access_token);
-
   res.send(playlists);
 });
 
 PlaylistRouter.get('/sign', async (req, res) => {
   const month = req.query.month;
   const day = req.query.day;
+  const access_token = req.query.access_token;
   const zodiacSign = await getZodiacSign(month, day);
   const playlist = Playlists[zodiacSign];
 
   if (day !== undefined && month !== undefined) {
-    res.status(200).send({ sign: zodiacSign, playlist: playlist });
+    const url = `https://api.spotify.com/v1/playlists/${playlist.playlist_id}/tracks`;
+    await axios({
+      method: 'GET',
+      url,
+      params: { fields: 'items(track(uri))' },
+      headers: {
+        Authorization: 'Bearer ' + access_token,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        let tracks = [];
+        response.data.items.forEach((track) => {
+          const uri = track.track.uri;
+          tracks.push(uri);
+        });
+        playlist.tracks = tracks;
+
+        res.status(200).send(playlist);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   }
 });
 
@@ -117,8 +117,6 @@ function getZodiacSign(month, day) {
     scorpio: 'scorpio',
     sagittarius: 'sagittarius',
   };
-
-  console.log(month, day);
 
   if ((month == 1 && day <= 20) || (month == 12 && day >= 22)) {
     return zodiacSigns.capricorn;
