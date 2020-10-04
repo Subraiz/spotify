@@ -1,21 +1,19 @@
 const AuthRouter = require('express').Router();
 const querystring = require('querystring');
-const btoa = require('btoa');
-const axios = require('axios');
 const passport = require('passport');
 const SpotifyStrategy = require('passport-spotify').Strategy;
+const { Auth } = require('../../controllers');
 require('dotenv').config(); // Access .env variables
 
-// initialize Firestore
-const admin = require('firebase-admin');
-const serviceAccount = require('../../../serviceAccountKey.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-const db = admin.firestore();
-
-// Set callback path for authentication
-const callbackPath = '/auth/spotify/callback';
+const callbackPath = '/auth/spotify/callback'; // Set callback path for authentication
+const SCOPES = [
+  'user-read-email',
+  'user-read-private',
+  'streaming',
+  'playlist-read-private',
+  'playlist-modify-private',
+  'user-library-read',
+]; // Set permissions we will need from Spotify for the user
 
 // Set up spotify passport strategy
 passport.use(
@@ -36,14 +34,7 @@ passport.use(
 AuthRouter.get(
   '/auth',
   passport.authenticate('spotify', {
-    scope: [
-      'user-read-email',
-      'user-read-private',
-      'streaming',
-      'playlist-read-private',
-      'playlist-modify-private',
-      'user-library-read',
-    ],
+    scope: SCOPES,
     showDialog: true,
   }),
   (req, res) => {
@@ -56,30 +47,10 @@ AuthRouter.get(
   callbackPath,
   passport.authenticate('spotify', { failureRedirect: '/login' }),
   async (req, res) => {
-    console.log();
     const { accessToken, refreshToken, profile } = req._passport.session.user;
 
-    const user = {
-      name: profile.displayName,
-      email: profile.emails[0].value,
-      userId: profile.id,
-      country: profile.country,
-      profileUrl: profile.profileUrl,
-      membership: profile.product,
-      followers: profile.followers,
-      refreshToken: refreshToken,
-      accessToken: accessToken,
-    };
-
-    // db.collection('Users')
-    //   .doc(user.userId)
-    //   .set(user, { merge: true })
-    //   .then(function () {
-    //
-    //   })
-    //   .catch(function (error) {
-    //     console.error('Error writing document: ', error);
-    //   });
+    const user = Auth.createUser(profile, accessToken, refreshToken);
+    //Auth.uploadUser(user);
 
     // Redirect back to the frontend and pass in both tokens as querys
     const query = querystring.stringify({
@@ -87,45 +58,15 @@ AuthRouter.get(
       refresh_token: refreshToken,
       user_id: user.userId,
     });
-    res.redirect(`${process.env.WEBSITE_URL}/?` + query);
+    return res.redirect(`${process.env.WEBSITE_URL}/?` + query);
   }
 );
 
 // Pass in a refresh token to generate a new access token for an hour
 AuthRouter.post('/auth/refresh', async (req, res) => {
-  const url = 'https://accounts.spotify.com/api/token';
-
   const { refresh_token } = req.body;
-  const grant_type = 'refresh_token';
-  const auth =
-    'Basic ' + btoa(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET);
-
-  const reqData = {
-    grant_type,
-    refresh_token,
-  };
-
-  await axios({
-    method: 'POST',
-    url: url,
-    data: Object.keys(reqData)
-      .map(function (key) {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(reqData[key]);
-      })
-      .join('&'),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: auth,
-    },
-  })
-    .then((response) => {
-      res.status(200).send({
-        access_token: response.data.access_token,
-      });
-    })
-    .catch((err) => {
-      res.status(400).send({ message: 'Invalid refresh token.' });
-    });
+  const newAccessToken = await Auth.refreshAccessToken(refresh_token, req, res);
+  return res.status(200).send({ access_token: newAccessToken });
 });
 
 module.exports = AuthRouter;
