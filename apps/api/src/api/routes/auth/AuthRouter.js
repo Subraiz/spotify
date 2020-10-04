@@ -4,17 +4,26 @@ const btoa = require('btoa');
 const axios = require('axios');
 const passport = require('passport');
 const SpotifyStrategy = require('passport-spotify').Strategy;
-const creds = require('../../../environments/creds');
+require('dotenv').config(); // Access .env variables
 
+// initialize Firestore
+const admin = require('firebase-admin');
+const serviceAccount = require('../../../serviceAccountKey.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+const db = admin.firestore();
+
+// Set callback path for authentication
 const callbackPath = '/auth/spotify/callback';
 
 // Set up spotify passport strategy
 passport.use(
   new SpotifyStrategy(
     {
-      clientID: creds.clientId,
-      clientSecret: creds.clientSecret,
-      callbackURL: 'http://localhost:4000/api' + callbackPath,
+      clientID: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      callbackURL: `http://localhost:${process.env.PORT}/api` + callbackPath,
     },
     // Function to serialize the user and get the data back in the callback route
     function (accessToken, refreshToken, expires_in, profile, done) {
@@ -48,16 +57,37 @@ AuthRouter.get(
   passport.authenticate('spotify', { failureRedirect: '/login' }),
   async (req, res) => {
     console.log();
-    const { accessToken, refreshToken, profiile } = req._passport.session.user;
+    const { accessToken, refreshToken, profile } = req._passport.session.user;
 
-    console.log(accessToken, refreshToken);
+    const user = {
+      name: profile.displayName,
+      email: profile.emails[0].value,
+      userId: profile.id,
+      country: profile.country,
+      profileUrl: profile.profileUrl,
+      membership: profile.product,
+      followers: profile.followers,
+      refreshToken: refreshToken,
+      accessToken: accessToken,
+    };
+
+    // db.collection('Users')
+    //   .doc(user.userId)
+    //   .set(user, { merge: true })
+    //   .then(function () {
+    //
+    //   })
+    //   .catch(function (error) {
+    //     console.error('Error writing document: ', error);
+    //   });
 
     // Redirect back to the frontend and pass in both tokens as querys
     const query = querystring.stringify({
       access_token: accessToken,
       refresh_token: refreshToken,
+      user_id: user.userId,
     });
-    res.redirect('http://localhost:4200/?' + query);
+    res.redirect(`${process.env.WEBSITE_URL}/?` + query);
   }
 );
 
@@ -67,7 +97,8 @@ AuthRouter.post('/auth/refresh', async (req, res) => {
 
   const { refresh_token } = req.body;
   const grant_type = 'refresh_token';
-  const auth = 'Basic ' + btoa(creds.clientId + ':' + creds.clientSecret);
+  const auth =
+    'Basic ' + btoa(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET);
 
   const reqData = {
     grant_type,

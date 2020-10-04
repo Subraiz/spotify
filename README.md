@@ -2,6 +2,8 @@
 
 This project was generated using [Nx](https://nx.dev).
 
+<b>Please make sure you have the correct .env file. If you do not have it, please contact project owner.</b>
+
 🔎 **Below is any documentation on which routes you will need to connect the Frontend to.**
 
 _Alternatively you can look at the implementation of the routes https://documenter.getpostman.com/view/8127978/TVRedAP9_

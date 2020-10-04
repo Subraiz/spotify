@@ -3,16 +3,16 @@ const Playlists = require('./Playlists');
 const axios = require('axios');
 
 PlaylistRouter.post('/save', async (req, res) => {
-  let { user_id, access_token, playlist_id } = req.body;
-
-  const playlists = await getUserPlaylists(access_token);
-  let playlistExists = playlists.filter(function (playlist) {
-    return playlist.id === playlist_id;
-  })[0];
-  playlistExists = playlistExists == undefined ? false : true;
+  let { user_id, playlist_id, access_token } = req.body;
 
   let url = `https://api.spotify.com/v1/playlists/${playlist_id}/followers`;
-  if (!playlistExists) {
+  const followingPlaylist = await userIsFollowingPlaylist(
+    user_id,
+    playlist_id,
+    access_token
+  );
+
+  if (!followingPlaylist) {
     await axios({
       method: 'PUT',
       url,
@@ -77,6 +77,29 @@ PlaylistRouter.get('/sign', async (req, res) => {
       });
   }
 });
+
+const userIsFollowingPlaylist = async (userId, playlistId, accessToken) => {
+  const url = `https://api.spotify.com/v1/playlists/${playlistId}/followers/contains`;
+  let isFollowing = false;
+
+  await axios({
+    method: 'GET',
+    url,
+    params: { ids: userId },
+    headers: {
+      Authorization: 'Bearer ' + accessToken,
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => {
+      isFollowing = response.data[0];
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+
+  return isFollowing;
+};
 
 // Helper function to get user playlists
 const getUserPlaylists = async (access_token) => {

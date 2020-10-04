@@ -15,8 +15,9 @@ UserRouter.get('/', async (req, res) => {
       res.status(200).send({ user: response.data });
     })
     .catch((err) => {
-      console.log(err);
-      res.status(400).send({ message: 'User not found' });
+      const statusCode = err.response.status;
+      const errorMessage = err.response.headers['www-authenticate'];
+      res.status(statusCode).send({ message: errorMessage });
     });
 });
 
