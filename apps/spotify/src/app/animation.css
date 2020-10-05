@@ -1,0 +1,76 @@
+.intro-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: absolute;
+  animation: fade-out 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 2s;
+}
+
+#svg-animate {
+  width: 530px;
+  height: 400px;
+  animation: zoom-in 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: 2s;
+}
+
+.animate-path {
+  stroke-dasharray: 6000;
+  stroke: #fff;
+  fill: #fff;
+  opacity: 10;
+  animation: animate 1.5s cubic-bezier(0.22, 0.71, 0.57, 0.11);
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    display: flex;
+  }
+
+  100% {
+    display: none !important;
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in {
+  0% {
+    width: 530px;
+    height: 400px;
+  }
+
+  100% {
+    width: 1400px;
+    height: 1200px;
+    display: none;
+  }
+}
+
+@keyframes animate {
+  0% {
+    opacity: 0;
+    fill: none;
+    stroke-dashoffset: 6000;
+  }
+
+  30% {
+    opacity: 10;
+    fill: none;
+    stroke-dashoffset: 6000;
+  }
+
+  90% {
+    fill: rgba(255, 255, 255, 0);
+  }
+
+  100% {
+    opacity: 10;
+    fill: rgba(255, 255, 255, 1);
+    stroke-dashoffset: 0;
+  }
+}

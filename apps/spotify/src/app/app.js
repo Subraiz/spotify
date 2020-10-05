@@ -7,6 +7,7 @@ import { withRouter } from 'react-router';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import { CallbackState } from 'react-spotify-web-playback/lib/types';
 import { SpotifyConnect } from '../components';
+import Animation from './Animation';
 
 const serverUrl = 'http://localhost:4000/api';
 
@@ -46,9 +47,10 @@ const SecondContainer = styled.div`
 
 const ThirdContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   height: 50px;
   margin-top: 10px;
+  width: 20vw;
 
   button {
     margin-right: 10px;
@@ -89,7 +91,12 @@ class App extends Component {
       autoPlay: true,
       startStream: false,
       showStream: true,
+      renderAnimation: true,
     };
+
+    setTimeout(() => {
+      this.setState({ renderAnimation: false });
+    }, 3500);
   }
 
   componentWillMount = async () => {
@@ -238,7 +245,7 @@ class App extends Component {
         <div style={{ opacity: showStream ? 1 : 0, marginTop: 20 }}>
           <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
           <SpotifyPlayer
-            name={'testing'}
+            name={'Spotify Web (The Libra)'}
             token={accessToken}
             uris={[currentSong]}
             autoPlay={true}
@@ -266,11 +273,12 @@ class App extends Component {
         <div>
           {!startStream ? (
             <button
+              id="start-button"
               onClick={() => {
                 this.setState({ startStream: true });
               }}
             >
-              Start Stream
+              Get Playlist
             </button>
           ) : (
             <button
@@ -299,10 +307,17 @@ class App extends Component {
   };
 
   render() {
-    const { authenticated, loading, user, playlist } = this.state;
+    const {
+      authenticated,
+      loading,
+      user,
+      playlist,
+      renderAnimation,
+    } = this.state;
     if (!loading) {
       return (
         <StyledApp>
+          {renderAnimation ? <Animation /> : null}
           <FirstContainer>
             <div className="video-placeholder" />
             <p>

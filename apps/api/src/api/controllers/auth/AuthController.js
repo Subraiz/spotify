@@ -67,7 +67,7 @@ module.exports.refreshAccessToken = async (refresh_token, req, res) => {
       new_access_token = response.data.access_token;
     })
     .catch((err) => {
-      return res.status(400).send({ message: 'Invalid refresh token.' });
+      console.log(err);
     });
   return new_access_token;
 };
