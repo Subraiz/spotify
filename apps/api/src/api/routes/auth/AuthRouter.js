@@ -45,7 +45,9 @@ AuthRouter.get(
 // Execute this function after user sings in with Spotify
 AuthRouter.get(
   callbackPath,
-  passport.authenticate('spotify', { failureRedirect: '/login' }),
+  passport.authenticate('spotify', {
+    failureRedirect: '/api/auth/failed',
+  }),
   async (req, res) => {
     const { accessToken, refreshToken, profile } = req._passport.session.user;
 
@@ -61,6 +63,10 @@ AuthRouter.get(
     return res.redirect(`${process.env.WEBSITE_URL}/?` + query);
   }
 );
+
+AuthRouter.get('/auth/failed', async (req, res) => {
+  return res.redirect(`${process.env.WEBSITE_URL}`);
+});
 
 // Pass in a refresh token to generate a new access token for an hour
 AuthRouter.post('/auth/refresh', async (req, res) => {

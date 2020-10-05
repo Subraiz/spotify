@@ -2,12 +2,69 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Route, Link } from 'react-router-dom';
+import Cookies from 'universal-cookie';
+import { withRouter } from 'react-router';
+import { SpotifyConnect } from '../components';
+
+const serverUrl = 'http://localhost:4000/api';
+
+const cookies = new Cookies();
 
 const StyledApp = styled.div`
-  font-family: sans-serif;
-  min-width: 300px;
-  max-width: 600px;
-  margin: 50px auto;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const FirstContainer = styled.div`
+  width: 20vw;
+  margin-left: 10px;
+  margin-top: 10px;
+
+  .video-placeholder {
+    max-width: 100%;
+    height: 100px;
+    background-color: gray;
+  }
+
+  p {
+    font-family: Montserrat;
+  }
+`;
+
+const SecondContainer = styled.div`
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ThirdContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: 50px;
+  margin-top: 10px;
+
+  button {
+    margin-right: 10px;
+    border-radius: 25px;
+    width: 120px;
+    font-famliy: Montserrat;
+    color: white;
+    padding: 10px 15px;
+    background-color: grey;
+    border: 0px solid black;
+  }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  background-color: black;
+  width: 100vw;
+  height: 100vh;
 `;
 
 class App extends Component {
@@ -16,38 +73,179 @@ class App extends Component {
 
     this.state = {
       authenticated: false,
+      loading: true,
       userId: null,
       accessToken: null,
       refreshToken: null,
+      user: {},
+      playlist: {},
+      birthMonth: 4,
+      birthDate: 5,
+      birthYear: 1998,
     };
   }
 
   componentWillMount = async () => {
-    let urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('user_id');
-    const accessToken = urlParams.get('access_token');
-    const refreshToken = urlParams.get('refresh_token');
+    let refreshToken = cookies.get('refresh_token');
+    let userId = cookies.get('user_id');
+    let birth = cookies.get('birth');
 
-    if (userId !== null && accessToken !== null && refreshToken !== null) {
-      this.setState({ authenticated: true, userId, accessToken, refreshToken });
+    if (refreshToken === undefined) {
+      let urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('access_token');
+      userId = urlParams.get('user_id');
+      refreshToken = urlParams.get('refresh_token');
+
+      if (userId !== null && accessToken !== null && refreshToken !== null) {
+        const { birthMonth, birthDate, birthYear } = this.state;
+        cookies.set('birth', [birthMonth, birthDate, birthYear], { path: '/' });
+        cookies.set('refresh_token', refreshToken, { path: '/' });
+        cookies.set('access_token', accessToken, { path: '/' });
+        cookies.set('user_id', userId, { path: '/' });
+        const user = await this.getUser(accessToken);
+        const playlist = await this.getPlaylist(
+          birth[0],
+          birth[1],
+          accessToken
+        );
+
+        this.setState({
+          authenticated: true,
+          loading: false,
+          user,
+          playlist,
+          userId,
+          accessToken,
+          refreshToken,
+        });
+        this.props.history.push('/');
+      } else {
+        this.setState({ authenticated: false, loading: false });
+      }
+    } else {
+      const accessToken = await this.getNewAccessToken(refreshToken);
+      cookies.set('access_token', accessToken, { path: '/' });
+
+      const user = await this.getUser(accessToken);
+      const playlist = await this.getPlaylist(birth[0], birth[1], accessToken);
+
+      this.setState({
+        authenticated: true,
+        loading: false,
+        user,
+        userId,
+        refreshToken,
+        accessToken,
+        playlist: playlist,
+        birthDate: birth[1],
+        birthMonth: birth[0],
+        birthYear: birth[2],
+      });
+    }
+  };
+
+  getNewAccessToken = async (refreshToken) => {
+    const url = `${serverUrl}/auth/refresh`;
+    let accessToken;
+
+    await axios({
+      method: 'POST',
+      url,
+      data: { refresh_token: refreshToken },
+    }).then((res) => {
+      accessToken = res.data.access_token;
+    });
+
+    return accessToken;
+  };
+
+  getUser = async (accessToken) => {
+    const url = `${serverUrl}/user`;
+    console.log(url);
+    let user;
+
+    await axios({
+      method: 'GET',
+      url,
+      params: { access_token: accessToken },
+    })
+      .then((res) => {
+        user = res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    return user;
+  };
+
+  getPlaylist = async (month, day, accessToken) => {
+    const url = `${serverUrl}/playlist/sign`;
+    let playlist;
+
+    await axios({
+      method: 'GET',
+      url,
+      params: { month, day, access_token: accessToken },
+    })
+      .then((res) => {
+        playlist = res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return playlist;
+  };
+
+  handleBirthChange = (e) => {
+    console.log(e.target.name);
+    console.log(e.target.value);
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  renderSpotifyConnect = () => {
+    const { authenticated, user } = this.state;
+    const { birthMonth, birthDate, birthYear } = this.state;
+
+    if (authenticated) {
+      return <p>Hello {user.display_name}</p>;
+    } else {
+      return (
+        <SpotifyConnect
+          serverUrl={serverUrl}
+          month={birthMonth}
+          year={birthYear}
+          day={birthDate}
+          handleInputChange={this.handleBirthChange.bind(this)}
+        />
+      );
     }
   };
 
   render() {
-    const { authenticated, userId } = this.state;
-    if (!authenticated) {
+    const { authenticated, loading, user, playlist } = this.state;
+    if (!loading) {
       return (
         <StyledApp>
-          <a href={'http://localhost:4000/api/auth'}>Login with spotify!</a>
+          <FirstContainer>
+            <div className="video-placeholder" />
+            <p>
+              Hey there it’s TI, to celebrate the release of my new album,
+              Horoscopes, I put together some hororscopes for your zodiac sign.
+            </p>
+          </FirstContainer>
+          <SecondContainer>{this.renderSpotifyConnect()}</SecondContainer>
+          <ThirdContainer>
+            <button>Share</button>
+            <button>Stream</button>
+          </ThirdContainer>
         </StyledApp>
       );
     } else {
-      return (
-        <StyledApp>
-          <p>Hello user {userId}</p>
-        </StyledApp>
-      );
+      return <LoadingContainer />;
     }
   }
 }
-export default App;
+export default withRouter(App);
