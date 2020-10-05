@@ -38,6 +38,7 @@ const FirstContainer = styled.div`
 
 const SecondContainer = styled.div`
   height: 100vh;
+  max-width: 50vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,6 +86,7 @@ class App extends Component {
       birthDate: 5,
       birthYear: 1998,
       currentSong: undefined,
+      autoPlay: true,
     };
   }
 
@@ -212,7 +214,7 @@ class App extends Component {
 
     const tracks = playlist.tracks.slice(0, 10);
 
-    return tracks.map((song, i) => {
+    return playlist.tracks.map((song, i) => {
       return (
         <button
           key={i}
@@ -229,16 +231,17 @@ class App extends Component {
   renderSpotifyConnect = () => {
     const { authenticated, user, accessToken } = this.state;
     const { birthMonth, birthDate, birthYear } = this.state;
-    const { playlist, currentSong } = this.state;
+    const { playlist, currentSong, autoPlay } = this.state;
 
     if (authenticated) {
       return (
         <div>
           <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
           <SpotifyPlayer
+            name={'testing'}
             token={accessToken}
             uris={[currentSong]}
-            autoPlay={true}
+            autoPlay={autoPlay}
             persistDeviceSelection
             syncExternalDevice
           />
