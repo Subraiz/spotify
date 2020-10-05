@@ -88,6 +88,7 @@ class App extends Component {
       currentSong: undefined,
       autoPlay: true,
       startStream: false,
+      showStream: true,
     };
   }
 
@@ -230,11 +231,11 @@ class App extends Component {
   };
 
   renderStream = () => {
-    const { accessToken, currentSong, startStream } = this.state;
+    const { accessToken, currentSong, startStream, showStream } = this.state;
 
     if (startStream) {
       return (
-        <div>
+        <div style={{ opacity: showStream ? 1 : 0, marginTop: 20 }}>
           <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
           <SpotifyPlayer
             name={'testing'}
@@ -252,18 +253,35 @@ class App extends Component {
   renderSpotifyConnect = () => {
     const { authenticated, user, accessToken } = this.state;
     const { birthMonth, birthDate, birthYear } = this.state;
-    const { playlist, currentSong, autoPlay } = this.state;
+    const {
+      playlist,
+      currentSong,
+      autoPlay,
+      startStream,
+      showStream,
+    } = this.state;
 
     if (authenticated) {
       return (
         <div>
-          <button
-            onClick={() => {
-              this.setState({ startStream: true });
-            }}
-          >
-            Start Stream
-          </button>
+          {!startStream ? (
+            <button
+              onClick={() => {
+                this.setState({ startStream: true });
+              }}
+            >
+              Start Stream
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                this.setState({ showStream: !this.state.showStream });
+              }}
+            >
+              Toggle Stream Display
+            </button>
+          )}
+
           {this.renderStream()}
         </div>
       );
