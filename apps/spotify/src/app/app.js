@@ -87,6 +87,7 @@ class App extends Component {
       birthYear: 1998,
       currentSong: undefined,
       autoPlay: true,
+      startStream: false,
     };
   }
 
@@ -109,8 +110,8 @@ class App extends Component {
         cookies.set('user_id', userId, { path: '/' });
         const user = await this.getUser(accessToken);
         const playlist = await this.getPlaylist(
-          birth[0],
-          birth[1],
+          birthMonth,
+          birthDate,
           accessToken
         );
 
@@ -228,6 +229,26 @@ class App extends Component {
     });
   };
 
+  renderStream = () => {
+    const { accessToken, currentSong, startStream } = this.state;
+
+    if (startStream) {
+      return (
+        <div>
+          <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
+          <SpotifyPlayer
+            name={'testing'}
+            token={accessToken}
+            uris={[currentSong]}
+            autoPlay={true}
+            persistDeviceSelection
+            syncExternalDevice
+          />
+        </div>
+      );
+    }
+  };
+
   renderSpotifyConnect = () => {
     const { authenticated, user, accessToken } = this.state;
     const { birthMonth, birthDate, birthYear } = this.state;
@@ -236,15 +257,14 @@ class App extends Component {
     if (authenticated) {
       return (
         <div>
-          <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
-          <SpotifyPlayer
-            name={'testing'}
-            token={accessToken}
-            uris={[currentSong]}
-            autoPlay={autoPlay}
-            persistDeviceSelection
-            syncExternalDevice
-          />
+          <button
+            onClick={() => {
+              this.setState({ startStream: true });
+            }}
+          >
+            Start Stream
+          </button>
+          {this.renderStream()}
         </div>
       );
     } else {
