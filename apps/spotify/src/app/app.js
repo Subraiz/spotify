@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Route, Link } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import { withRouter } from 'react-router';
+import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
+import { CallbackState } from 'react-spotify-web-playback/lib/types';
 import { SpotifyConnect } from '../components';
 
 const serverUrl = 'http://localhost:4000/api';
@@ -82,6 +84,7 @@ class App extends Component {
       birthMonth: 4,
       birthDate: 5,
       birthYear: 1998,
+      currentSong: undefined,
     };
   }
 
@@ -117,6 +120,7 @@ class App extends Component {
           userId,
           accessToken,
           refreshToken,
+          currentSong: playlist.tracks[0].uri,
         });
         this.props.history.push('/');
       } else {
@@ -140,6 +144,7 @@ class App extends Component {
         birthDate: birth[1],
         birthMonth: birth[0],
         birthYear: birth[2],
+        currentSong: playlist.tracks[0].uri,
       });
     }
   };
@@ -161,7 +166,6 @@ class App extends Component {
 
   getUser = async (accessToken) => {
     const url = `${serverUrl}/user`;
-    console.log(url);
     let user;
 
     await axios({
@@ -198,19 +202,48 @@ class App extends Component {
   };
 
   handleBirthChange = (e) => {
-    console.log(e.target.name);
-    console.log(e.target.value);
     this.setState({
       [e.target.name]: e.target.value,
     });
   };
 
+  renderPlaylist = () => {
+    const { playlist } = this.state;
+
+    const tracks = playlist.tracks.slice(0, 10);
+
+    return tracks.map((song, i) => {
+      return (
+        <button
+          key={i}
+          onClick={() => {
+            this.setState({ currentSong: song.uri });
+          }}
+        >
+          {song.name}
+        </button>
+      );
+    });
+  };
+
   renderSpotifyConnect = () => {
-    const { authenticated, user } = this.state;
+    const { authenticated, user, accessToken } = this.state;
     const { birthMonth, birthDate, birthYear } = this.state;
+    const { playlist, currentSong } = this.state;
 
     if (authenticated) {
-      return <p>Hello {user.display_name}</p>;
+      return (
+        <div>
+          <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
+          <SpotifyPlayer
+            token={accessToken}
+            uris={[currentSong]}
+            autoPlay={true}
+            persistDeviceSelection
+            syncExternalDevice
+          />
+        </div>
+      );
     } else {
       return (
         <SpotifyConnect

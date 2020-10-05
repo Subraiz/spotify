@@ -13,6 +13,8 @@ const SCOPES = [
   'playlist-read-private',
   'playlist-modify-private',
   'user-library-read',
+  'user-read-playback-state',
+  'user-modify-playback-state',
 ]; // Set permissions we will need from Spotify for the user
 
 // Set up spotify passport strategy

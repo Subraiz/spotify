@@ -48,7 +48,7 @@ module.exports.getPlaylistByZodiacSign = async (
   await axios({
     method: 'GET',
     url,
-    params: { fields: 'items(track(uri))' },
+    params: { fields: '' },
     headers: {
       Authorization: 'Bearer ' + access_token,
       'Content-Type': 'application/json',
@@ -57,8 +57,9 @@ module.exports.getPlaylistByZodiacSign = async (
     .then((response) => {
       let tracks = [];
       response.data.items.forEach((track) => {
+        const name = track.track.name;
         const uri = track.track.uri;
-        tracks.push(uri);
+        tracks.push({ name, uri });
       });
       playlist.tracks = tracks;
     })
