@@ -235,7 +235,7 @@ class App extends Component {
     const { playlist } = this.state;
 
     return playlist.tracks.map((song, i) => {
-      return <button>{song.name}</button>;
+      return <button key={i}>{song.name}</button>;
     });
   };
 
