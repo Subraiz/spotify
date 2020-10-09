@@ -106,10 +106,12 @@ class App extends Component {
 
     if (refreshToken === undefined) {
       let urlParams = new URLSearchParams(window.location.search);
-      console.log(urlParams);
       const accessToken = urlParams.get('access_token');
       userId = urlParams.get('user_id');
       refreshToken = urlParams.get('refresh_token');
+
+      console.log('Got stuff');
+      console.log(accessToken, refreshToken);
 
       if (userId !== null && accessToken !== null && refreshToken !== null) {
         const { birthMonth, birthDate, birthYear } = this.state;
