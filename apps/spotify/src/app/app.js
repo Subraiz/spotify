@@ -6,6 +6,7 @@ import Cookies from 'universal-cookie';
 import { withRouter } from 'react-router';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import { CallbackState } from 'react-spotify-web-playback/lib/types';
+import { isMobile } from 'react-device-detect';
 import { SpotifyConnect } from '../components';
 import Animation from './Animation';
 
@@ -166,47 +167,6 @@ class App extends Component {
         birthYear: birth[2],
       });
     }
-
-    const token = this.state.accessToken;
-    const player = new Spotify.Player({
-      name: 'Spotify Web (The Libra)',
-      getOAuthToken: (cb) => {
-        cb(token);
-      },
-    });
-
-    // Error handling
-    player.addListener('initialization_error', ({ message }) => {
-      console.error(message);
-    });
-    player.addListener('authentication_error', ({ message }) => {
-      console.error(message);
-    });
-    player.addListener('account_error', ({ message }) => {
-      console.error(message);
-    });
-    player.addListener('playback_error', ({ message }) => {
-      console.error(message);
-    });
-
-    // Playback status updates
-    player.addListener('player_state_changed', (state) => {
-      console.log(state);
-    });
-
-    // Ready
-    player.addListener('ready', ({ device_id }) => {
-      console.log('Ready with Device ID', device_id);
-      this.setState({ device_id: device_id });
-    });
-
-    // Not Ready
-    player.addListener('not_ready', ({ device_id }) => {
-      console.log('Device ID has gone offline', device_id);
-    });
-
-    // Connect to the player!
-    player.connect();
   };
 
   getNewAccessToken = async (refreshToken) => {
@@ -304,23 +264,45 @@ class App extends Component {
     }
   };
 
-  startPlayingMusic = async () => {
-    const { device_id, playlist, accessToken } = this.state;
+  setUpStreamForMobile = async () => {
+    const { playlist, accessToken } = this.state;
+
     let tracks = playlist.tracks.map((track) => {
       return track.uri;
     });
 
-    const url = 'https://api.spotify.com/v1/me/player/play';
+    let url = 'https://api.spotify.com/v1/me/player/devices';
 
     await axios({
-      method: 'PUT',
+      method: 'GET',
       url,
       headers: { Authorization: 'Bearer ' + accessToken },
-      params: { device_id: device_id },
-      data: {
-        uris: tracks,
-      },
-    }).then((res) => {});
+    }).then(async (res) => {
+      let device_id;
+      for (let i = 0; i < res.data.devices.length; i++) {
+        const device = res.data.devices[i];
+        if (device.type === 'Smartphone') {
+          device_id = device.id;
+        }
+      }
+
+      if (device_id === undefined) {
+        console.log('could not find phone please open the app');
+        return;
+      }
+
+      url = 'https://api.spotify.com/v1/me/player/play';
+
+      await axios({
+        method: 'PUT',
+        url,
+        headers: { Authorization: 'Bearer ' + accessToken },
+        params: { device_id: device_id },
+        data: {
+          uris: tracks,
+        },
+      }).then((res) => {});
+    });
   };
 
   renderSpotifyConnect = () => {
@@ -338,15 +320,26 @@ class App extends Component {
       return (
         <div>
           {!startStream ? (
-            <button
-              id="start-button"
-              onClick={() => {
-                // this.setState({ startStream: true });
-                this.startPlayingMusic();
-              }}
-            >
-              Start Experience
-            </button>
+            <div>
+              {isMobile ? (
+                <p>
+                  Hey we noticed your on a mobile device. Please open the
+                  spotify app in the background to continue.
+                </p>
+              ) : null}
+              <button
+                id="start-button"
+                onClick={() => {
+                  if (isMobile) {
+                    this.setUpStreamForMobile();
+                  } else {
+                    this.setState({ startStream: true });
+                  }
+                }}
+              >
+                Start Experience
+              </button>
+            </div>
           ) : (
             <button
               onClick={() => {

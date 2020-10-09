@@ -6,10 +6,10 @@ const app = require('./app');
 
 const PORT = 4000;
 
-// const httpServer = http.createServer(app);
-// httpServer.listen(PORT + 1, () => {
-//   console.log('HTTP Server running on port ' + PORT + 1);
-// });
+const httpServer = http.createServer(app);
+httpServer.listen(5000, () => {
+  console.log('HTTP Server running on port ' + 5000);
+});
 
 // serve the API with signed certificate on 443 (SSL/HTTPS) port
 const server = https.createServer(
