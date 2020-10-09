@@ -68,7 +68,6 @@ const ThirdContainer = styled.div`
 const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
-  background-color: black;
   width: 100vw;
   height: 100vh;
 `;
@@ -172,10 +171,6 @@ class App extends Component {
         birthYear: birth[2],
       });
     }
-
-    setTimeout(() => {
-      this.setState({ renderAnimation: false });
-    }, 3000);
   };
 
   getNewAccessToken = async (refreshToken) => {
@@ -334,7 +329,6 @@ class App extends Component {
     if (!loading) {
       return (
         <StyledApp>
-          {renderAnimation ? <Animation /> : null}
           <FirstContainer>
             <div className="video-placeholder" />
             <p>
