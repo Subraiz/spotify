@@ -10,6 +10,7 @@ import { SpotifyConnect } from '../components';
 import Animation from './Animation';
 
 const serverUrl = 'http://localhost:4000/api';
+// const serverUrl = 'http://starsignsbyti.com/api'
 
 const cookies = new Cookies();
 
@@ -87,16 +88,12 @@ class App extends Component {
       birthMonth: 4,
       birthDate: 5,
       birthYear: 1998,
-      currentSong: undefined,
+
       autoPlay: true,
       startStream: false,
       showStream: true,
       renderAnimation: true,
     };
-
-    setTimeout(() => {
-      this.setState({ renderAnimation: false });
-    }, 3500);
   }
 
   componentWillMount = async () => {
@@ -131,7 +128,6 @@ class App extends Component {
           userId,
           accessToken,
           refreshToken,
-          currentSong: playlist.tracks[0].uri,
         });
         this.props.history.push('/');
       } else {
@@ -155,9 +151,12 @@ class App extends Component {
         birthDate: birth[1],
         birthMonth: birth[0],
         birthYear: birth[2],
-        currentSong: playlist.tracks[0].uri,
       });
     }
+
+    setTimeout(() => {
+      this.setState({ renderAnimation: false });
+    }, 3000);
   };
 
   getNewAccessToken = async (refreshToken) => {
@@ -221,36 +220,34 @@ class App extends Component {
   renderPlaylist = () => {
     const { playlist } = this.state;
 
-    const tracks = playlist.tracks.slice(0, 10);
-
     return playlist.tracks.map((song, i) => {
-      return (
-        <button
-          key={i}
-          onClick={() => {
-            this.setState({ currentSong: song.uri });
-          }}
-        >
-          {song.name}
-        </button>
-      );
+      return <button>{song.name}</button>;
     });
   };
 
   renderStream = () => {
-    const { accessToken, currentSong, startStream, showStream } = this.state;
+    const { accessToken, startStream, showStream, playlist } = this.state;
+
+    let tracks = playlist.tracks.map((track) => {
+      return track.uri;
+    });
 
     if (startStream) {
       return (
         <div style={{ opacity: showStream ? 1 : 0, marginTop: 20 }}>
           <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
+
           <SpotifyPlayer
             name={'Spotify Web (The Libra)'}
             token={accessToken}
-            uris={[currentSong]}
+            uris={tracks}
             autoPlay={true}
             persistDeviceSelection
             syncExternalDevice
+            play={false}
+            callback={(state) => {
+              console.log(state);
+            }}
           />
         </div>
       );
@@ -262,7 +259,7 @@ class App extends Component {
     const { birthMonth, birthDate, birthYear } = this.state;
     const {
       playlist,
-      currentSong,
+
       autoPlay,
       startStream,
       showStream,
@@ -314,6 +311,7 @@ class App extends Component {
       playlist,
       renderAnimation,
     } = this.state;
+
     if (!loading) {
       return (
         <StyledApp>

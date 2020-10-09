@@ -6,6 +6,7 @@ const { Auth } = require('../../controllers');
 require('dotenv').config(); // Access .env variables
 
 const callbackPath = '/auth/spotify/callback'; // Set callback path for authentication
+
 const SCOPES = [
   'user-read-email',
   'user-read-private',
@@ -23,7 +24,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: `http://localhost:${process.env.PORT}/api` + callbackPath,
+      callbackURL: process.env.API_URL + callbackPath,
     },
     // Function to serialize the user and get the data back in the callback route
     function (accessToken, refreshToken, expires_in, profile, done) {

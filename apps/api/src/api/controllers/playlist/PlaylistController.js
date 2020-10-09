@@ -57,9 +57,10 @@ module.exports.getPlaylistByZodiacSign = async (
     .then((response) => {
       let tracks = [];
       response.data.items.forEach((track) => {
+        const artist = track.track.artists[0].name;
         const name = track.track.name;
         const uri = track.track.uri;
-        tracks.push({ name, uri });
+        tracks.push({ name, artist, uri });
       });
       playlist.tracks = tracks;
     })
