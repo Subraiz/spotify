@@ -10,7 +10,7 @@ import { SpotifyConnect } from '../components';
 import Animation from './Animation';
 
 //const serverUrl = 'https://localhost:4000/api';
-const serverUrl = 'https://api.starsignsbyti.com/api';
+const serverUrl = 'https://starsignsbyti.com:4000/api';
 
 const cookies = new Cookies();
 
