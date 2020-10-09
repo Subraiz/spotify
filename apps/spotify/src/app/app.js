@@ -87,7 +87,6 @@ class App extends Component {
       birthMonth: 4,
       birthDate: 5,
       birthYear: 1998,
-
       autoPlay: true,
       startStream: false,
       showStream: true,
@@ -100,10 +99,6 @@ class App extends Component {
     let accessToken;
     let userId = cookies.get('user_id');
     let birth = cookies.get('birth');
-
-    console.log(refreshToken);
-
-    console.log(window.location.search);
 
     if (refreshToken === undefined) {
       let urlParams = window.location.search;
@@ -171,6 +166,47 @@ class App extends Component {
         birthYear: birth[2],
       });
     }
+
+    const token = this.state.accessToken;
+    const player = new Spotify.Player({
+      name: 'Spotify Web (The Libra)',
+      getOAuthToken: (cb) => {
+        cb(token);
+      },
+    });
+
+    // Error handling
+    player.addListener('initialization_error', ({ message }) => {
+      console.error(message);
+    });
+    player.addListener('authentication_error', ({ message }) => {
+      console.error(message);
+    });
+    player.addListener('account_error', ({ message }) => {
+      console.error(message);
+    });
+    player.addListener('playback_error', ({ message }) => {
+      console.error(message);
+    });
+
+    // Playback status updates
+    player.addListener('player_state_changed', (state) => {
+      console.log(state);
+    });
+
+    // Ready
+    player.addListener('ready', ({ device_id }) => {
+      console.log('Ready with Device ID', device_id);
+      this.setState({ device_id: device_id });
+    });
+
+    // Not Ready
+    player.addListener('not_ready', ({ device_id }) => {
+      console.log('Device ID has gone offline', device_id);
+    });
+
+    // Connect to the player!
+    player.connect();
   };
 
   getNewAccessToken = async (refreshToken) => {
@@ -268,6 +304,25 @@ class App extends Component {
     }
   };
 
+  startPlayingMusic = async () => {
+    const { device_id, playlist, accessToken } = this.state;
+    let tracks = playlist.tracks.map((track) => {
+      return track.uri;
+    });
+
+    const url = 'https://api.spotify.com/v1/me/player/play';
+
+    await axios({
+      method: 'PUT',
+      url,
+      headers: { Authorization: 'Bearer ' + accessToken },
+      params: { device_id: device_id },
+      data: {
+        uris: tracks,
+      },
+    }).then((res) => {});
+  };
+
   renderSpotifyConnect = () => {
     const { authenticated, user, accessToken } = this.state;
     const { birthMonth, birthDate, birthYear } = this.state;
@@ -286,10 +341,11 @@ class App extends Component {
             <button
               id="start-button"
               onClick={() => {
-                this.setState({ startStream: true });
+                // this.setState({ startStream: true });
+                this.startPlayingMusic();
               }}
             >
-              Get Playlist
+              Start Experience
             </button>
           ) : (
             <button

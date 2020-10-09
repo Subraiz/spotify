@@ -3,7 +3,12 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 
-const { AuthRouter, UserRouter, PlaylistRouter } = require('./api/routes');
+const {
+  AuthRouter,
+  UserRouter,
+  PlaylistRouter,
+  PlayerRouter,
+} = require('./api/routes');
 
 const app = express();
 
@@ -27,5 +32,6 @@ app.use(passport.session());
 app.use('/api', AuthRouter);
 app.use('/api/user', UserRouter);
 app.use('/api/playlist', PlaylistRouter);
+app.use('/api/player', PlayerRouter);
 
 module.exports = app;
