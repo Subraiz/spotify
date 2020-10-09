@@ -116,9 +116,9 @@ class App extends Component {
 
     if (refreshToken === undefined) {
       let urlParams = new URLSearchParams(window.location.search);
-      const accessToken = getParameterByName('access_token');
-      userId = getParameterByName('user_id');
-      refreshToken = getParameterByName('refresh_token');
+      const accessToken = this.getParameterByName('access_token');
+      userId = this.getParameterByName('user_id');
+      refreshToken = this.getParameterByName('refresh_token');
 
       console.log('Got stuff');
       console.log(accessToken, refreshToken);
