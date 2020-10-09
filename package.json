@@ -34,6 +34,7 @@
     "document-register-element": "1.13.1",
     "express": "4.17.1",
     "firebase-admin": "^9.2.0",
+    "https": "^1.0.0",
     "passport": "^0.4.1",
     "passport-spotify": "^1.1.0",
     "react": "16.13.1",

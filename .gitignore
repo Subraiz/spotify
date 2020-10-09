@@ -2,6 +2,7 @@
 
 # private environment variables
 *.env
+*.pem
 
 # compiled output
 /dist

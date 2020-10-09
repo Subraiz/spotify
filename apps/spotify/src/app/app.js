@@ -9,8 +9,8 @@ import { CallbackState } from 'react-spotify-web-playback/lib/types';
 import { SpotifyConnect } from '../components';
 import Animation from './Animation';
 
-//const serverUrl = 'http://localhost:4000/api';
-const serverUrl = 'http://api.starsignsbyti.com/api';
+//const serverUrl = 'https://localhost:4000/api';
+const serverUrl = 'https://api.starsignsbyti.com/api';
 
 const cookies = new Cookies();
 
