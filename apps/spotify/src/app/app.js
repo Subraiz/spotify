@@ -102,6 +102,9 @@ class App extends Component {
     let userId = cookies.get('user_id');
     let birth = cookies.get('birth');
 
+    console.log(window.location);
+    console.log(window.location.search);
+
     if (refreshToken === undefined) {
       let urlParams = new URLSearchParams(window.location.search);
       const accessToken = urlParams.get('access_token');
