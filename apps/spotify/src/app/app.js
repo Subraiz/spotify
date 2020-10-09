@@ -109,6 +109,8 @@ class App extends Component {
       if (urlParams.includes('refresh_token')) {
         urlParams = urlParams.split('=');
 
+        console.log(urlParams);
+
         accessToken = urlParams[1].split('&')[0];
         refreshToken = urlParams[2].split('&')[0];
         userId = urlParams[3];
