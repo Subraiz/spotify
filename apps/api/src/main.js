@@ -4,12 +4,12 @@ const fs = require('fs');
 require('dotenv').config();
 const app = require('./app');
 
-const PORT = 3999;
+const PORT = 4000;
 
-const httpServer = http.createServer(app);
-httpServer.listen(PORT + 1, () => {
-  console.log('HTTP Server running on port ' + PORT + 1);
-});
+// const httpServer = http.createServer(app);
+// httpServer.listen(PORT + 1, () => {
+//   console.log('HTTP Server running on port ' + PORT + 1);
+// });
 
 // serve the API with signed certificate on 443 (SSL/HTTPS) port
 const server = https.createServer(
