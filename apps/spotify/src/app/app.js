@@ -97,6 +97,16 @@ class App extends Component {
     };
   }
 
+  getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
   componentWillMount = async () => {
     let refreshToken = cookies.get('refresh_token');
     let userId = cookies.get('user_id');
@@ -106,9 +116,9 @@ class App extends Component {
 
     if (refreshToken === undefined) {
       let urlParams = new URLSearchParams(window.location.search);
-      const accessToken = urlParams.get('access_token');
-      userId = urlParams.get('user_id');
-      refreshToken = urlParams.get('refresh_token');
+      const accessToken = getParameterByName('access_token');
+      userId = getParameterByName('user_id');
+      refreshToken = getParameterByName('refresh_token');
 
       console.log('Got stuff');
       console.log(accessToken, refreshToken);
