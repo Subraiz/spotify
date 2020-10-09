@@ -103,6 +103,10 @@ class App extends Component {
     let userId = cookies.get('user_id');
     let birth = cookies.get('birth');
 
+    console.log(refreshToken);
+
+    console.log(window.location.search);
+
     if (refreshToken === undefined) {
       let urlParams = window.location.search;
 
