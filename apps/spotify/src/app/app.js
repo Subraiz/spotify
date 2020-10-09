@@ -10,8 +10,8 @@ import { SpotifyConnect } from '../components';
 import Animation from './Animation';
 
 // Set server url
-//const serverUrl = 'http://localhost:4000/api';
-const serverUrl = 'http://api.starsignsbyti.com/api';
+const serverUrl = 'http://localhost:4000/api';
+//const serverUrl = 'http://api.starsignsbyti.com/api';
 
 const cookies = new Cookies();
 
@@ -97,38 +97,30 @@ class App extends Component {
     };
   }
 
-  getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-      results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
-  }
-
   componentWillMount = async () => {
     let refreshToken = cookies.get('refresh_token');
+    let accessToken;
     let userId = cookies.get('user_id');
     let birth = cookies.get('birth');
 
-    console.log(window.location.search);
-
     if (refreshToken === undefined) {
-      let urlParams = new URLSearchParams(window.location.search);
-      const accessToken = this.getParameterByName('access_token');
-      userId = this.getParameterByName('user_id');
-      refreshToken = this.getParameterByName('refresh_token');
+      let urlParams = window.location.search;
 
-      console.log('Got stuff');
-      console.log(accessToken, refreshToken);
+      if (urlParams.includes('refresh_token')) {
+        urlParams = urlParams.split('=');
 
-      if (userId !== null && accessToken !== null && refreshToken !== null) {
+        accessToken = urlParams[1].split('&')[0];
+        refreshToken = urlParams[2].split('&')[0];
+        userId = urlParams[3];
+
+        console.log(refreshToken);
+
         const { birthMonth, birthDate, birthYear } = this.state;
         cookies.set('birth', [birthMonth, birthDate, birthYear], { path: '/' });
         cookies.set('refresh_token', refreshToken, { path: '/' });
         cookies.set('access_token', accessToken, { path: '/' });
         cookies.set('user_id', userId, { path: '/' });
+
         const user = await this.getUser(accessToken);
         const playlist = await this.getPlaylist(
           birthMonth,
@@ -136,21 +128,27 @@ class App extends Component {
           accessToken
         );
 
-        this.setState({
-          authenticated: true,
-          loading: false,
-          user,
-          playlist,
-          userId,
-          accessToken,
-          refreshToken,
-        });
+        if (user === undefined) {
+          this.setState({ authenticated: false, loading: false });
+        } else {
+          this.setState({
+            authenticated: true,
+            loading: false,
+            user,
+            playlist,
+            userId,
+            accessToken,
+            refreshToken,
+            playlist: playlist,
+          });
+        }
+
         this.props.history.push('/');
       } else {
         this.setState({ authenticated: false, loading: false });
       }
     } else {
-      const accessToken = await this.getNewAccessToken(refreshToken);
+      accessToken = await this.getNewAccessToken(refreshToken);
       cookies.set('access_token', accessToken, { path: '/' });
 
       const user = await this.getUser(accessToken);
