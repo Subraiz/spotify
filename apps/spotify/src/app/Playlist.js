@@ -305,7 +305,7 @@ class Playlist extends Component {
     if (!startStream) {
       return (
         <button
-          className="btn share-button horoscope-button"
+          className="horoscope-button"
           onClick={() => {
             this.trackSpotifyState();
             this.setState({ startStream: true });

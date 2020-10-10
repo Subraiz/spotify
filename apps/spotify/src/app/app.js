@@ -31,6 +31,7 @@ const SpinningZodiacWheel = styled.div`
   width: 100vw;
   z-index: -1;
   animation: ${(props) => (props.animate ? 'spin' : null)} 60s linear;
+  animation-iteration-count: infinite;
   overflow: hidden;
 
   @keyframes spin {

@@ -18,8 +18,13 @@
   height: 200px;
   border-radius: 100px;
   overflow: hidden;
-  animation: pulse 2s linear;
-  animation-iteration-count: infinite;
+  background-color: black;
+  font-family: 'Merriweather', serif;
+  font-weight: 300;
+  font-size: 18px;
+  color: #fff;
+  cursor: pointer;
+  border: none;
 }
 
 @media (max-width: 515px) {
@@ -39,20 +44,6 @@
   padding: 10px 20px;
   color: white;
   background-color: black;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.15);
-  }
-
-  100% {
-    transform: scale(1);
-  }
 }
 
 .btn:hover {
