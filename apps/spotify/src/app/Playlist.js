@@ -152,7 +152,7 @@ class Playlist extends Component {
         return track.uri;
       });
 
-      const searchForDevicce = setInterval(async () => {
+      const searchForDevice = setInterval(async () => {
         const deviceId = await this.getMobileDeviceId();
         if (deviceId !== undefined) {
           let url = serverUrl + '/player/start';
@@ -168,9 +168,9 @@ class Playlist extends Component {
           })
             .then(async (res) => {
               console.log(res.data);
-              this.setState({ mobileIsAcitive: true });
               this.trackSpotifyState();
-              clearInterval(searchForDevicce);
+              this.setState({ mobileIsAcitive: true });
+              clearInterval(searchForDevice);
             })
             .catch((err) => {
               this.setState({ mobileIsAcitive: false });
