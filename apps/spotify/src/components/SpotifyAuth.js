@@ -45,6 +45,10 @@ const Container = styled.div`
     margin-top: 25px;
     border-radius: 15px;
   }
+
+  @media (max-width: 415px) {
+    width: 90vw;
+  }
 `;
 
 class SpotifyAuth extends Component {

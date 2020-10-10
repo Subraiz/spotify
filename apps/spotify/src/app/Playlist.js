@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import axios from 'axios';
 
-const WebPlaylistContainer = styled.div`
+const PlaylistContainer = styled.div`
   background-color: white;
   width: 100vw;
   height: 100vh;
@@ -13,6 +13,53 @@ const WebPlaylistContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  @media (max-width: 415px) {
+    flex-direction: column;
+    height: auto;
+    justify-content: flex-start;
+    align-items: center;
+    top: 0;
+  }
+`;
+
+const HoroscopeContainer = styled.div`
+  display: flex;
+  width: 25vw;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 80vh;
+  margin-right: 4vw;
+  font-family: Montserrat;
+
+  @media (max-width: 415px) {
+    width: 80vw;
+    margin-right: 0;
+    justify-content: flex-start;
+    margin-top: 35px;
+  }
+`;
+
+const HoroscopeVideoContainer = styled.div`
+  width: 100%;
+  height: 50%;
+  background-color: grey;
+  border-radius: 20px;
+  overflow: hidden;
+`;
+
+const HoroscopeSign = styled.p`
+  text-transform: capitalize;
+  text-align: center;
+`;
+
+const HoroscopeText = styled.p`
+  text-align: center;
+  line-height: 1.8;
+
+  @media (max-width: 415px) {
+    line-height: 1;
+  }
 `;
 
 const WebPlaylistInfo = styled.div`
@@ -21,12 +68,23 @@ const WebPlaylistInfo = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 80vh;
+
+  @media (max-width: 415px) {
+    width: 80vw;
+    height: auto;
+  }
 `;
 
 const WebSongDetailsContainer = styled.div`
   height: 90%;
   overflow-y: scroll;
   border: 1px solid black;
+
+  @media (max-width: 415px) {
+    height: 35vh;
+    margin-bottom: 20px;
+    border: 0px solid black;
+  }
 `;
 
 const CurrentSong = styled.p`
@@ -49,6 +107,13 @@ const Song = styled.p`
   padding-bottom: 5px;
 `;
 
+const ZodiacSignContainer = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const ZodiacSign = styled.p`
   font-family: Montserrat;
   color: black;
@@ -58,6 +123,11 @@ const ZodiacSign = styled.p`
   margin: 15px 0;
   padding-bottom: 5px;
   text-transform: capitalize;
+
+  @media (max-width: 415px) {
+    font-weight: 400;
+    border: 0px solid black;
+  }
 `;
 
 const PlayerContainer = styled.div``;
@@ -156,12 +226,38 @@ class Playlist extends Component {
 
   renderMobileStream = () => {
     const { mobileIsAcitive, currentURI } = this.state;
+    const { playlist } = this.props;
 
     if (mobileIsAcitive) {
       return (
-        <div>
-          <p>{currentURI}</p>
-        </div>
+        <PlaylistContainer>
+          <HoroscopeContainer>
+            <HoroscopeSign>TI HOROSCOPE APP</HoroscopeSign>
+            <HoroscopeVideoContainer></HoroscopeVideoContainer>
+            <HoroscopeSign>{playlist.sign}</HoroscopeSign>
+            <HoroscopeText>
+              {`  It may seem like everyone around you is happy and getting what
+              they want while you're stuck in the trenches, Leo. Don't compare
+              yourself to other people and make judgments based on outside
+              appearances. The truth of the matter is that they're most likely
+              only looking at the immediate future and experiencing short-term
+              pleasures. You, however, have your sights set on the long-term and
+              will probably be much better off.`}
+            </HoroscopeText>
+          </HoroscopeContainer>
+
+          <WebPlaylistInfo>
+            <ZodiacSignContainer>
+              <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
+              <button>Save to Spotify</button>
+            </ZodiacSignContainer>
+            <WebSongDetailsContainer>
+              {this.renderPlaylistSongNames()}
+            </WebSongDetailsContainer>
+
+            <PlayerContainer></PlayerContainer>
+          </WebPlaylistInfo>
+        </PlaylistContainer>
       );
     } else {
       return (
@@ -199,10 +295,24 @@ class Playlist extends Component {
       );
     } else {
       return (
-        <WebPlaylistContainer>
+        <PlaylistContainer>
+          <HoroscopeContainer>
+            <HoroscopeVideoContainer></HoroscopeVideoContainer>
+            <HoroscopeSign>{playlist.sign}</HoroscopeSign>
+            <HoroscopeText>
+              {`  It may seem like everyone around you is happy and getting what
+              they want while you're stuck in the trenches, Leo. Don't compare
+              yourself to other people and make judgments based on outside
+              appearances. The truth of the matter is that they're most likely
+              only looking at the immediate future and experiencing short-term
+              pleasures. You, however, have your sights set on the long-term and
+              will probably be much better off.`}
+            </HoroscopeText>
+          </HoroscopeContainer>
+
           <WebPlaylistInfo>
+            <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
             <WebSongDetailsContainer>
-              <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
               {this.renderPlaylistSongNames()}
             </WebSongDetailsContainer>
 
@@ -220,7 +330,7 @@ class Playlist extends Component {
               />
             </PlayerContainer>
           </WebPlaylistInfo>
-        </WebPlaylistContainer>
+        </PlaylistContainer>
       );
     }
   };

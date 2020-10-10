@@ -12,7 +12,7 @@ import Animation from './Animation';
 import Playlist from './Playlist';
 
 let serverUrl = 'http://localhost:5000/api';
-serverUrl = 'https://starsignsbyti.com:4000/api';
+//serverUrl = 'https://starsignsbyti.com:4000/api';
 
 const cookies = new Cookies();
 
@@ -22,6 +22,11 @@ const StyledApp = styled.div`
   height: 100vh;
   flex-direction: row;
   justify-content: space-between;
+
+  @media (max-width: 415px) {
+    flex-direction: column;
+    height: auto;
+  }
 `;
 
 const FirstContainer = styled.div`
@@ -38,6 +43,20 @@ const FirstContainer = styled.div`
   p {
     font-family: Montserrat;
   }
+
+  @media (max-width: 415px) {
+    width: 100vw;
+    margin-left: 0;
+
+    .video-placeholder {
+      width: 70vw;
+      margin: auto;
+    }
+
+    p {
+      padding-left: 15px;
+    }
+  }
 `;
 
 const SecondContainer = styled.div`
@@ -47,6 +66,11 @@ const SecondContainer = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 20;
+
+  @media (max-width: 415px) {
+    max-width: 100vw;
+    height: auto;
+  }
 `;
 
 const ThirdContainer = styled.div`
@@ -65,6 +89,10 @@ const ThirdContainer = styled.div`
     padding: 10px 15px;
     background-color: grey;
     border: 0px solid black;
+  }
+
+  @media (max-width: 415px) {
+    display: none;
   }
 `;
 
