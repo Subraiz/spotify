@@ -12,15 +12,20 @@ const Container = styled.div`
   justify-content: space-between;
   width: 20vw;
 
-  img {
-    object-fit: cover;
+  .auth-video-container {
     width: 100%;
     height: 50vh;
-    border-radius: 15px;
+    background-color: #f9e3b3;
+    border-radius: 10px;
+    border: 2px solid #d2a038;
+    overflow: hidden;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
   }
 
   p {
-    font-family: Montserrat;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    text-align: center;
   }
 
   .birthday-container {
@@ -30,20 +35,25 @@ const Container = styled.div`
   }
 
   input {
-    width: 30%;
-    background-color: grey;
-    border-radius: 15px;
-    border: 0px solid black;
+    width: 27%;
+    background-color: #f8e3b3;
+    border-radius: 5px;
+    border: 1px solid #d2a038;
+    padding: 8px 20px;
+    margin-right: 2%;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
   }
 
   a {
-    padding: 10px 25px;
-    background-color: grey;
+    padding: 18px 25px;
+    background-color: black;
     color: white;
-    font-faimly: Montserrat;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
     text-align: center;
     margin-top: 25px;
-    border-radius: 15px;
+    border-radius: 3px;
   }
 
   @media (max-width: 415px) {
@@ -79,15 +89,8 @@ class SpotifyAuth extends Component {
     const { birthMonth, birthDate, birthYear } = this.state;
     return (
       <Container>
-        <img
-          src={
-            'https://storage.googleapis.com/afs-prod/media/media:6a4aed11404f49ac868949c91f6de54a/3000.jpeg'
-          }
-        />
-        <p>
-          Enter your birthdate to get your zodiac sign and connect to Spotify to
-          get your reading and playlist.
-        </p>
+        <div className="auth-video-container"></div>
+        <p>Select your birthdate and get your horoscope.</p>
         <div className="birthday-container">
           <input
             placeholder="Month"

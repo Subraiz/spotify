@@ -5,10 +5,10 @@ import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import axios from 'axios';
 
 const PlaylistContainer = styled.div`
-  background-color: white;
+  background: none;
   width: 100vw;
   height: 100vh;
-  position: absolute;
+  position: fixed;
   left: 0;
   display: flex;
   justify-content: center;
@@ -19,18 +19,21 @@ const PlaylistContainer = styled.div`
     height: auto;
     justify-content: flex-start;
     align-items: center;
-    top: 0;
+    position: absolute;
+    top: 100px;
+    left: -25vw;
   }
 `;
 
 const HoroscopeContainer = styled.div`
   display: flex;
-  width: 25vw;
+  width: 20vw;
   flex-direction: column;
-  justify-content: space-between;
   height: 80vh;
   margin-right: 4vw;
-  font-family: Montserrat;
+  justify-content: space-between;
+
+  font-family: 'Merriweather', serif;
 
   @media (max-width: 415px) {
     width: 80vw;
@@ -42,10 +45,12 @@ const HoroscopeContainer = styled.div`
 
 const HoroscopeVideoContainer = styled.div`
   width: 100%;
-  height: 50%;
-  background-color: grey;
-  border-radius: 20px;
+  height: 600px;
+  background-color: #f8e3b3;
   overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid #d2a038;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const HoroscopeSign = styled.p`
@@ -55,7 +60,7 @@ const HoroscopeSign = styled.p`
 
 const HoroscopeText = styled.p`
   text-align: center;
-  line-height: 1.8;
+  line-height: 1.2;
 
   @media (max-width: 415px) {
     line-height: 1;
@@ -64,10 +69,11 @@ const HoroscopeText = styled.p`
 
 const WebPlaylistInfo = styled.div`
   display: flex;
-  width: 45vw;
+  width: 30vw;
   flex-direction: column;
   justify-content: space-between;
   height: 80vh;
+  font-family: 'Merriweather', serif;
 
   @media (max-width: 415px) {
     width: 80vw;
@@ -78,7 +84,10 @@ const WebPlaylistInfo = styled.div`
 const WebSongDetailsContainer = styled.div`
   height: 90%;
   overflow-y: scroll;
-  border: 1px solid black;
+  border-radius: 10px;
+  border: 2px solid #d2a038;
+  background-color: #f8e3b3;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 415px) {
     height: 35vh;
@@ -88,38 +97,36 @@ const WebSongDetailsContainer = styled.div`
 `;
 
 const CurrentSong = styled.p`
-  font-family: Montserrat;
   color: black;
   font-weight: 700;
   padding-left: 10px;
-  border-bottom: 1px solid #e7e7e7;
-  margin: 10px 0;
-  padding-bottom: 5px;
+  border-bottom: 1px solid #000;
+  margin: 10px 15px;
+
+  padding: 5px 10px;
 `;
 
 const Song = styled.p`
-  font-family: Montserrat;
   color: #474747;
   font-weight: 400;
   padding-left: 10px;
-  border-bottom: 1px solid #e7e7e7;
-  margin: 10px 0;
-  padding-bottom: 5px;
+  border-bottom: 1px solid #000;
+  margin: 10px 15px;
+
+  padding: 5px 10px;
 `;
 
 const ZodiacSignContainer = styled.div`
   display: flex;
   width: 100%;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
 `;
 
 const ZodiacSign = styled.p`
-  font-family: Montserrat;
   color: black;
   font-weight: 700;
   padding-left: 10px;
-  border-bottom: 1px solid #e7e7e7;
   margin: 15px 0;
   padding-bottom: 5px;
   text-transform: capitalize;
@@ -130,7 +137,16 @@ const ZodiacSign = styled.p`
   }
 `;
 
-const PlayerContainer = styled.div``;
+const PlayerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+`;
+
+const Player = styled.div`
+  width: 60%;
+`;
 
 class Playlist extends Component {
   constructor(props) {
@@ -263,11 +279,12 @@ class Playlist extends Component {
       return (
         <div>
           <button
+            className="btn share-button horoscope-button"
             onClick={async () => {
               this.openSpotifyApp();
             }}
           >
-            Start Experience
+            Get My Horoscope
           </button>
         </div>
       );
@@ -285,12 +302,13 @@ class Playlist extends Component {
     if (!startStream) {
       return (
         <button
+          className="btn share-button horoscope-button"
           onClick={() => {
             this.trackSpotifyState();
             this.setState({ startStream: true });
           }}
         >
-          Start Experience
+          Get My Horoscope
         </button>
       );
     } else {
@@ -311,23 +329,32 @@ class Playlist extends Component {
           </HoroscopeContainer>
 
           <WebPlaylistInfo>
-            <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
             <WebSongDetailsContainer>
+              <ZodiacSignContainer>
+                <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
+              </ZodiacSignContainer>
               {this.renderPlaylistSongNames()}
             </WebSongDetailsContainer>
 
             <PlayerContainer>
-              <SpotifyPlayer
-                name={'Spotify Web (The Libra)'}
-                token={accessToken}
-                uris={tracks}
-                autoPlay={true}
-                persistDeviceSelection
-                syncExternalDevice
-                styles={{
-                  fontFamily: 'Arial',
-                }}
-              />
+              <Player>
+                <SpotifyPlayer
+                  name={'Spotify Web (The Libra)'}
+                  token={accessToken}
+                  uris={tracks}
+                  autoPlay={true}
+                  persistDeviceSelection
+                  syncExternalDevice
+                  styles={{
+                    bgColor: '#f8e3b3',
+                    sliderColor: '#d2a038',
+                    sliderHandleColor: '#d2a038',
+                    sliderTrackColor: '#000',
+                    trackArtistColor: '#d2a038',
+                  }}
+                />
+              </Player>
+              <button className="btn save-btn">Save Playlist</button>
             </PlayerContainer>
           </WebPlaylistInfo>
         </PlaylistContainer>

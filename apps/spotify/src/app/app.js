@@ -7,9 +7,12 @@ import { withRouter } from 'react-router';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import { CallbackState } from 'react-spotify-web-playback/lib/types';
 import { isMobile } from 'react-device-detect';
+import ZodiacWheel from '../assets/ZodiacWheel.png';
+import AlbumLogo from '../assets/AlbumLogo.png';
 import { SpotifyAuth } from '../components';
 import Animation from './Animation';
 import Playlist from './Playlist';
+import styles from './home.css';
 
 let serverUrl = 'http://localhost:5000/api';
 serverUrl = 'https://starsignsbyti.com:4000/api';
@@ -19,37 +22,41 @@ const cookies = new Cookies();
 const StyledApp = styled.div`
   display: flex;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   flex-direction: row;
   justify-content: space-between;
 
   @media (max-width: 415px) {
     flex-direction: column;
-    height: auto;
+    overflow: scroll;
   }
 `;
 
 const FirstContainer = styled.div`
   width: 20vw;
-  margin-left: 10px;
-  margin-top: 10px;
+  margin-left: 25px;
+  margin-top: 25px;
 
-  .video-placeholder {
+  .logo-placeholder {
     max-width: 100%;
-    height: 100px;
-    background-color: gray;
+    height: 180px;
+    background-image: url(${AlbumLogo});
+    background-size: contain;
+    background-repeat: no-repeat;
   }
 
   p {
-    font-family: Montserrat;
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    font-size: 22px;
   }
 
   @media (max-width: 415px) {
     width: 100vw;
     margin-left: 0;
 
-    .video-placeholder {
-      width: 70vw;
+    .logo-placeholder {
+      width: 40vw;
       margin: auto;
     }
 
@@ -61,35 +68,24 @@ const FirstContainer = styled.div`
 
 const SecondContainer = styled.div`
   height: 100vh;
-  max-width: 50vw;
+  width: 50vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20;
+
+  position: absolute;
+  left: 25%;
+  margin: 0 auto;
 
   @media (max-width: 415px) {
     max-width: 100vw;
-    height: auto;
+    margin: 0 auto;
   }
 `;
 
 const ThirdContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  height: 50px;
-  margin-top: 10px;
-  width: 20vw;
-
-  button {
-    margin-right: 10px;
-    border-radius: 25px;
-    width: 120px;
-    font-famliy: Montserrat;
-    color: white;
-    padding: 10px 15px;
-    background-color: grey;
-    border: 0px solid black;
-  }
+  margin-top: 25px;
+  margin-right: 25px;
 
   @media (max-width: 415px) {
     display: none;
@@ -232,11 +228,16 @@ class App extends Component {
       return (
         <StyledApp>
           <FirstContainer>
-            <div className="video-placeholder" />
-            <p>
-              Hey there it’s TI, to celebrate the release of my new album,
-              Horoscopes, I put together some hororscopes for your zodiac sign.
-            </p>
+            <div className="logo-placeholder" />
+            {!authenticated ? (
+              <p>
+                Hi this is T.I. <br />
+                My new album L.I.B.R.A is <br />
+                available now. <br />
+                Find out your fortune and <br />
+                bless up.
+              </p>
+            ) : null}
           </FirstContainer>
           <SecondContainer>
             {authenticated ? (
@@ -250,8 +251,11 @@ class App extends Component {
             )}
           </SecondContainer>
           <ThirdContainer>
-            <button>Share</button>
-            <button>Stream</button>
+            {!authenticated ? (
+              <button className={'btn share-button'}>Share</button>
+            ) : null}
+
+            <button className={'btn stream-button'}>Stream</button>
           </ThirdContainer>
         </StyledApp>
       );
