@@ -111,7 +111,7 @@ class Playlist extends Component {
 
     let link = `https://open.spotify.com/track/${uri}`;
 
-    await window.location.href = link;
+    window.location.href = link;
 
     const deviceId = await this.getMobileDeviceId();
     this.setState({ deviceId });
