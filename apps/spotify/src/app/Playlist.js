@@ -4,13 +4,70 @@ import { isMobile } from 'react-device-detect';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import axios from 'axios';
 
+const WebPlaylistContainer = styled.div`
+  background-color: white;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const WebPlaylistInfo = styled.div`
+  display: flex;
+  width: 45vw;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 80vh;
+`;
+
+const WebSongDetailsContainer = styled.div`
+  height: 90%;
+  overflow-y: scroll;
+  border: 1px solid black;
+`;
+
+const CurrentSong = styled.p`
+  font-family: Montserrat;
+  color: black;
+  font-weight: 700;
+  padding-left: 10px;
+  border-bottom: 1px solid #e7e7e7;
+  margin: 10px 0;
+  padding-bottom: 5px;
+`;
+
+const Song = styled.p`
+  font-family: Montserrat;
+  color: #474747;
+  font-weight: 400;
+  padding-left: 10px;
+  border-bottom: 1px solid #e7e7e7;
+  margin: 10px 0;
+  padding-bottom: 5px;
+`;
+
+const ZodiacSign = styled.p`
+  font-family: Montserrat;
+  color: black;
+  font-weight: 700;
+  padding-left: 10px;
+  border-bottom: 1px solid #e7e7e7;
+  margin: 15px 0;
+  padding-bottom: 5px;
+  text-transform: capitalize;
+`;
+
+const PlayerContainer = styled.div``;
+
 class Playlist extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       startStream: false,
-      displayStream: true,
       deviceId: undefined,
       mobileIsAcitive: false,
       currentURI: undefined,
@@ -25,7 +82,7 @@ class Playlist extends Component {
         return track.uri;
       });
 
-      const t = setInterval(async () => {
+      const searchForDevicce = setInterval(async () => {
         const deviceId = await this.getMobileDeviceId();
         if (deviceId !== undefined) {
           let url = serverUrl + '/player/start';
@@ -43,7 +100,7 @@ class Playlist extends Component {
               console.log(res.data);
               this.setState({ mobileIsAcitive: true });
               this.trackSpotifyState();
-              clearInterval(t);
+              clearInterval(searchForDevicce);
             })
             .catch((err) => {
               this.setState({ mobileIsAcitive: false });
@@ -78,12 +135,16 @@ class Playlist extends Component {
     return deviceId;
   };
 
-  renderPlaylist = () => {
+  renderPlaylistSongNames = () => {
     const { playlist } = this.props;
     const { currentURI } = this.state;
 
     return playlist.tracks.map((song, i) => {
-      return <p key={i}>{song.name}</p>;
+      if (song.uri === currentURI) {
+        return <CurrentSong key={i}>{song.name}</CurrentSong>;
+      } else {
+        return <Song key={i}>{song.name}</Song>;
+      }
     });
   };
 
@@ -118,15 +179,15 @@ class Playlist extends Component {
   };
 
   renderDesktopStream = () => {
-    const { startStream, displayStream } = this.state;
+    const { startStream } = this.state;
     const { playlist, accessToken } = this.props;
 
     let tracks = playlist.tracks.map((track) => {
       return track.uri;
     });
 
-    return (
-      <div>
+    if (!startStream) {
+      return (
         <button
           onClick={() => {
             this.trackSpotifyState();
@@ -135,29 +196,39 @@ class Playlist extends Component {
         >
           Start Experience
         </button>
+      );
+    } else {
+      return (
+        <WebPlaylistContainer>
+          <WebPlaylistInfo>
+            <WebSongDetailsContainer>
+              <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
+              {this.renderPlaylistSongNames()}
+            </WebSongDetailsContainer>
 
-        {startStream ? (
-          <div style={{ opacity: displayStream ? 1 : 0, marginTop: 20 }}>
-            <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
-
-            <SpotifyPlayer
-              name={'Spotify Web (The Libra)'}
-              token={accessToken}
-              uris={tracks}
-              autoPlay={true}
-              persistDeviceSelection
-              syncExternalDevice
-            />
-          </div>
-        ) : null}
-      </div>
-    );
+            <PlayerContainer>
+              <SpotifyPlayer
+                name={'Spotify Web (The Libra)'}
+                token={accessToken}
+                uris={tracks}
+                autoPlay={true}
+                persistDeviceSelection
+                syncExternalDevice
+                styles={{
+                  fontFamily: 'Arial',
+                }}
+              />
+            </PlayerContainer>
+          </WebPlaylistInfo>
+        </WebPlaylistContainer>
+      );
+    }
   };
 
   trackSpotifyState = () => {
     const { accessToken, serverUrl } = this.props;
 
-    const t = setInterval(() => {
+    const updateState = setInterval(() => {
       const url = serverUrl + '/player';
 
       axios({
@@ -182,11 +253,15 @@ class Playlist extends Component {
   };
 
   render() {
-    return (
-      <div>
-        {isMobile ? this.renderMobileStream() : this.renderDesktopStream()}
-      </div>
-    );
+    {
+      if (isMobile) {
+        {
+          return this.renderMobileStream();
+        }
+      } else {
+        return this.renderDesktopStream();
+      }
+    }
   }
 }
 
