@@ -27,7 +27,7 @@
   border: none;
 }
 
-@media (max-width: 515px) {
+@media (max-width: 415px) {
   .horoscope-btn-container {
     display: flex;
     margin-left: -10px;

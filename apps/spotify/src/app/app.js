@@ -27,10 +27,11 @@ const SpinningZodiacWheel = styled.div`
   background-repeat: no-repeat;
   height: 106vh;
   top: -3vh;
-  opacity: 0.4;
+  transition: opacity 0.5s linear;
+  opacity: ${(props) => props.opacity};
   width: 100vw;
   z-index: -1;
-  animation: ${(props) => (props.animate ? 'spin' : null)} 60s linear;
+  animation: spin 60s linear;
   animation-iteration-count: infinite;
   overflow: hidden;
 
@@ -153,6 +154,7 @@ class App extends Component {
       refreshToken: null,
       user: {},
       playlist: {},
+      wheelOpacity: 0.4,
     };
   }
 
@@ -264,13 +266,25 @@ class App extends Component {
     return playlist;
   };
 
+  toggleWheelOpacity = () => {
+    const { wheelOpacity } = this.state;
+
+    this.setState({ wheelOpacity: wheelOpacity === 1 ? 0.4 : 1 });
+  };
+
   render() {
-    const { loading, authenticated, accessToken, playlist } = this.state;
+    const {
+      loading,
+      authenticated,
+      accessToken,
+      playlist,
+      wheelOpacity,
+    } = this.state;
 
     if (!loading) {
       return (
         <StyledApp>
-          <SpinningZodiacWheel animate={true} />
+          <SpinningZodiacWheel opacity={wheelOpacity} />
           <FirstContainer>
             <div className="logo-placeholder" />
             {!authenticated ? (
@@ -286,6 +300,7 @@ class App extends Component {
           <SecondContainer>
             {authenticated ? (
               <Playlist
+                toggleWheelOpacity={this.toggleWheelOpacity}
                 accessToken={accessToken}
                 playlist={playlist}
                 serverUrl={serverUrl}

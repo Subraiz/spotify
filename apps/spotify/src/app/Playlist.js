@@ -305,8 +305,16 @@ class Playlist extends Component {
     if (!startStream) {
       return (
         <button
+          id="horoscope-button"
           className="horoscope-button"
+          onMouseOver={() => {
+            this.props.toggleWheelOpacity();
+          }}
+          onMouseLeave={() => {
+            this.props.toggleWheelOpacity();
+          }}
           onClick={() => {
+            this.props.toggleWheelOpacity();
             this.setState({ startStream: true });
             setTimeout(() => {
               this.trackSpotifyState();
