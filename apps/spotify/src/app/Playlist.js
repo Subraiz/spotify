@@ -155,13 +155,8 @@ class Playlist extends Component {
 
   openSpotifyApp = async () => {
     const { playlist } = this.props;
-    let uri = playlist.tracks[0].uri.split(':')[2];
-
-    let link = `https://open.spotify.com/track/${uri}`;
-
+    let link = `https://open.spotify.com/playlist/${playlist.playlist_id}`;
     window.location.href = link;
-
-    //  this.setState({ startStream: true });
   };
 
   renderMobileStream = () => {
