@@ -106,7 +106,11 @@ class Playlist extends Component {
   };
 
   openSpotifyApp = async () => {
-    let link = 'spotify:track:12VWzyPDBCc8fqeWCAfNwR:play';
+    const { playlist } = this.props;
+
+    let uri = playlist.tracks[0].uri;
+
+    let link = `https://open.spotify.com/track/${uri}:play`;
 
     window.location.href = link;
   };
