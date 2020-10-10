@@ -159,7 +159,7 @@ class Playlist extends Component {
       startStream: false,
       deviceId: undefined,
       mobileIsAcitive: false,
-      currentURI: undefined,
+      currentURI: props.playlist.tracks[0].uri,
     };
   }
 
@@ -307,8 +307,10 @@ class Playlist extends Component {
         <button
           className="horoscope-button"
           onClick={() => {
-            this.trackSpotifyState();
             this.setState({ startStream: true });
+            setTimeout(() => {
+              this.trackSpotifyState();
+            }, 1000);
           }}
         >
           Get My Horoscope
