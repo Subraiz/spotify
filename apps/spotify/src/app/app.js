@@ -20,7 +20,7 @@ serverUrl = 'https://starsignsbyti.com:4000/api';
 const cookies = new Cookies();
 
 const SpinningZodiacWheel = styled.div`
-  position: absolute;
+  position: fixed;
   background-image: url(${ZodiacWheel});
   background-size: contain;
   background-position: center;
@@ -31,6 +31,7 @@ const SpinningZodiacWheel = styled.div`
   width: 100vw;
   z-index: -1;
   animation: ${(props) => (props.animate ? 'spin' : null)} 60s linear;
+  overflow: hidden;
 
   @keyframes spin {
     0% {
