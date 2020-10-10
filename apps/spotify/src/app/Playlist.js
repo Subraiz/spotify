@@ -105,20 +105,25 @@ class Playlist extends Component {
 
   setUpStreamForMobile = async () => {
     const { deviceId } = this.state;
-    const { playlist, accessToken } = this.props;
+    const { playlist, accessToken, serverUrl } = this.props;
 
     let tracks = playlist.tracks.map((track) => {
       return track.uri;
     });
 
-    let url = 'https://api.spotify.com/v1/me/player/play';
+    let url = serverUrl + '/player/start';
+
     await axios({
-      method: 'PUT',
+      method: 'POST',
       url,
-      headers: { Authorization: 'Bearer ' + accessToken },
-      params: { device_id: deviceId },
-      data: { uris: tracks },
-    }).then((res) => {});
+      data: { device_id: deviceId, access_token: accessToken, uris: tracks },
+    })
+      .then(async (res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        this.setState({ mobileIsAcitive: false, startStream: false });
+      });
   };
 
   openSpotifyApp = async () => {
