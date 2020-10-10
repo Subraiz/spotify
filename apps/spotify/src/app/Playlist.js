@@ -12,20 +12,32 @@ class Playlist extends Component {
       startStream: false,
       displayStream: true,
       deviceId: undefined,
+      mobileIsAcitive: false,
     };
   }
 
   componentWillMount = async () => {
-    const t = setInterval(async () => {
-      if (isMobile) {
-        const deviceId = await this.getMobileDeviceId();
-        this.setState({ deviceId });
-        if (deviceId !== undefined) {
-          this.setUpStreamForMobile();
-          clearInterval(t);
-        }
-      }
-    }, 500);
+    if (isMobile) {
+      const { serverUrl, accessToken } = this.props;
+      const url = serverUrl + '/player/devices';
+
+      await axios({
+        method: 'GET',
+        url,
+        params: { access_token: accessToken },
+      })
+        .then((res) => {
+          let devices = res.data.devices;
+          for (let i = 0; i < devices.length; i++) {
+            let device = devices[i];
+            if (device.type === 'Smartphone' && device.is_active) {
+              this.setState({ mobileIsAcitive: true });
+              return;
+            }
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   };
 
   getMobileDeviceId = async () => {
@@ -116,22 +128,38 @@ class Playlist extends Component {
     let link = `https://open.spotify.com/track/${uri}`;
 
     window.location.href = link;
+
+    this.setState({ startStream: true });
   };
 
   renderMobileStream = () => {
-    const { playlistId } = this.state;
+    const { startStream, mobileIsAcitive } = this.state;
 
-    return (
-      <div>
+    if (startStream || mobileIsAcitive) {
+      return (
         <button
           onClick={async () => {
-            this.openSpotifyApp();
+            const deviceId = await this.getMobileDeviceId();
+            this.setState({ deviceId });
+            this.setUpStreamForMobile();
           }}
         >
-          {`Start Mobile Stream`}
+          Start Experience
         </button>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div>
+          <button
+            onClick={async () => {
+              this.openSpotifyApp();
+            }}
+          >
+            Open Spotify
+          </button>
+        </div>
+      );
+    }
   };
 
   renderDesktopStream = () => {
