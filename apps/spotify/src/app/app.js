@@ -29,6 +29,7 @@ const StyledApp = styled.div`
   @media (max-width: 415px) {
     flex-direction: column;
     overflow: scroll;
+    justify-content: flex-start;
   }
 `;
 
@@ -54,14 +55,21 @@ const FirstContainer = styled.div`
   @media (max-width: 415px) {
     width: 100vw;
     margin-left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
 
     .logo-placeholder {
-      width: 40vw;
+      width: 50vw;
       margin: auto;
+      max-height: 100px;
     }
 
     p {
-      padding-left: 15px;
+      padding-left: 0px;
+      align-self: center;
+      font-size: 14px;
     }
   }
 `;
@@ -78,8 +86,12 @@ const SecondContainer = styled.div`
   margin: 0 auto;
 
   @media (max-width: 415px) {
-    max-width: 100vw;
+    align-items: flex-start;
+    width: 100vw;
     margin: 0 auto;
+    left: 0;
+    position: relative;
+    height: auto;
   }
 `;
 
@@ -116,8 +128,9 @@ class App extends Component {
 
   componentWillMount = async () => {
     let refreshToken = cookies.get('refresh_token');
+    let birthMonth = cookies.get('birth_month');
 
-    if (refreshToken === undefined) {
+    if (refreshToken === undefined && birthMonth === undefined) {
       if (window.location.search.includes('refresh_token')) {
         let urlParams = window.location.search.split('=');
 

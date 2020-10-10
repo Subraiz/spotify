@@ -57,7 +57,11 @@ const Container = styled.div`
   }
 
   @media (max-width: 415px) {
-    width: 90vw;
+    width: 80vw;
+
+    .auth-video-container {
+      height: 40vh;
+    }
   }
 `;
 

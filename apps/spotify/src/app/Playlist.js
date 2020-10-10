@@ -20,8 +20,6 @@ const PlaylistContainer = styled.div`
     justify-content: flex-start;
     align-items: center;
     position: absolute;
-    top: 100px;
-    left: -25vw;
   }
 `;
 
@@ -39,7 +37,7 @@ const HoroscopeContainer = styled.div`
     width: 80vw;
     margin-right: 0;
     justify-content: flex-start;
-    margin-top: 35px;
+    margin-top: 15px;
   }
 `;
 
@@ -51,6 +49,11 @@ const HoroscopeVideoContainer = styled.div`
   border-radius: 10px;
   border: 2px solid #d2a038;
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 415px) {
+    height: 300px;
+    min-height: 200px;
+  }
 `;
 
 const HoroscopeSign = styled.p`
@@ -265,7 +268,7 @@ class Playlist extends Component {
           <WebPlaylistInfo>
             <ZodiacSignContainer>
               <ZodiacSign>{`${playlist.sign} Horoscope Playlist`}</ZodiacSign>
-              <button>Save to Spotify</button>
+              <button className="btn save-btn">Save to Spotify</button>
             </ZodiacSignContainer>
             <WebSongDetailsContainer>
               {this.renderPlaylistSongNames()}
@@ -277,7 +280,7 @@ class Playlist extends Component {
       );
     } else {
       return (
-        <div>
+        <div className="horoscope-btn-container">
           <button
             className="btn share-button horoscope-button"
             onClick={async () => {
