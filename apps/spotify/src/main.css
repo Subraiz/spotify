@@ -8,9 +8,10 @@ body {
 }
 
 html {
-  background-image: url('./assets/ZodiacWheel.png');
+  background-image: url('./assets/WheelBG.png');
   background-size: cover;
   background-position: center;
+  overflow-x: hidden;
 }
 
 button:active {
@@ -35,4 +36,10 @@ p {
 a,
 u {
   text-decoration: none;
+}
+
+@media (max-width: 415px) {
+  html {
+    background-image: url('./assets/ZodiacWheel.png');
+  }
 }

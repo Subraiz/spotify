@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import { CallbackState } from 'react-spotify-web-playback/lib/types';
 import { isMobile } from 'react-device-detect';
-import ZodiacWheel from '../assets/ZodiacWheel.png';
+import ZodiacWheel from '../assets/Wheel.png';
 import AlbumLogo from '../assets/AlbumLogo.png';
 import { SpotifyAuth } from '../components';
 import Animation from './Animation';
@@ -18,6 +18,34 @@ let serverUrl = 'http://localhost:5000/api';
 serverUrl = 'https://starsignsbyti.com:4000/api';
 
 const cookies = new Cookies();
+
+const SpinningZodiacWheel = styled.div`
+  position: absolute;
+  background-image: url(${ZodiacWheel});
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 106vh;
+  top: -3vh;
+  opacity: 0.4;
+  width: 100vw;
+  z-index: -1;
+  animation: ${(props) => (props.animate ? 'spin' : null)} 60s linear;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 415px) {
+    display: none;
+  }
+`;
 
 const StyledApp = styled.div`
   display: flex;
@@ -240,6 +268,7 @@ class App extends Component {
     if (!loading) {
       return (
         <StyledApp>
+          <SpinningZodiacWheel animate={true} />
           <FirstContainer>
             <div className="logo-placeholder" />
             {!authenticated ? (
