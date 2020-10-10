@@ -111,10 +111,15 @@ class Playlist extends Component {
 
     let link = `https://open.spotify.com/track/${uri}`;
 
-    window.location.href = link;
+    await window.location.href = link;
+
+    const deviceId = await this.getMobileDeviceId();
+    this.setState({ deviceId });
   };
 
   renderMobileStream = () => {
+    const { playlistId } = this.state;
+
     return (
       <div>
         <button
@@ -122,7 +127,7 @@ class Playlist extends Component {
             this.openSpotifyApp();
           }}
         >
-          Start Mobile Stream
+          {`Start Mobile Stream ${playlistId}`}
         </button>
       </div>
     );
