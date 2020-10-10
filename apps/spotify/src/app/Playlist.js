@@ -20,54 +20,36 @@ class Playlist extends Component {
   componentWillMount = async () => {
     const { serverUrl, accessToken, playlist } = this.props;
 
-    let tracks = playlist.tracks.map((track) => {
-      return track.uri;
-    });
-
-    const t = setInterval(async () => {
-      const deviceId = await this.getMobileDeviceId();
-      if (deviceId !== undefined) {
-        let url = serverUrl + '/player/start';
-
-        await axios({
-          method: 'POST',
-          url,
-          data: {
-            device_id: deviceId,
-            access_token: accessToken,
-            uris: tracks,
-          },
-        })
-          .then(async (res) => {
-            console.log(res.data);
-            this.setState({ mobileIsAcitive: true, startStream: true });
-            clearInterval(t);
-          })
-          .catch((err) => {
-            this.setState({ mobileIsAcitive: false, startStream: false });
-          });
-      }
-    }, 1000);
-
     if (isMobile) {
-      const url = serverUrl + '/player/devices';
+      let tracks = playlist.tracks.map((track) => {
+        return track.uri;
+      });
 
-      await axios({
-        method: 'GET',
-        url,
-        params: { access_token: accessToken },
-      })
-        .then((res) => {
-          let devices = res.data.devices;
-          for (let i = 0; i < devices.length; i++) {
-            let device = devices[i];
-            if (device.type === 'Smartphone' && device.is_active) {
+      const t = setInterval(async () => {
+        const deviceId = await this.getMobileDeviceId();
+        if (deviceId !== undefined) {
+          let url = serverUrl + '/player/start';
+
+          await axios({
+            method: 'POST',
+            url,
+            data: {
+              device_id: deviceId,
+              access_token: accessToken,
+              uris: tracks,
+            },
+          })
+            .then(async (res) => {
+              console.log(res.data);
               this.setState({ mobileIsAcitive: true });
-              return;
-            }
-          }
-        })
-        .catch((err) => console.log(err));
+              this.trackSpotifyState();
+              clearInterval(t);
+            })
+            .catch((err) => {
+              this.setState({ mobileIsAcitive: false });
+            });
+        }
+      }, 1000);
     }
   };
 
@@ -98,59 +80,11 @@ class Playlist extends Component {
 
   renderPlaylist = () => {
     const { playlist } = this.props;
+    const { currentURI } = this.state;
 
     return playlist.tracks.map((song, i) => {
-      return <button key={i}>{song.name}</button>;
+      return <p key={i}>{song.name}</p>;
     });
-  };
-
-  renderStream = () => {
-    const { startStream, displayStream } = this.state;
-    const { playlist, accessToken } = this.props;
-
-    let tracks = playlist.tracks.map((track) => {
-      return track.uri;
-    });
-
-    if (startStream) {
-      return (
-        <div style={{ opacity: displayStream ? 1 : 0, marginTop: 20 }}>
-          <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
-
-          <SpotifyPlayer
-            name={'Spotify Web (The Libra)'}
-            token={accessToken}
-            uris={tracks}
-            autoPlay={true}
-            persistDeviceSelection
-            syncExternalDevice
-          />
-        </div>
-      );
-    }
-  };
-
-  setUpStreamForMobile = async () => {
-    const { deviceId } = this.state;
-    const { playlist, accessToken, serverUrl } = this.props;
-
-    let tracks = playlist.tracks.map((track) => {
-      return track.uri;
-    });
-
-    let url = serverUrl + '/player/start';
-
-    await axios({
-      method: 'POST',
-      url,
-      data: { device_id: deviceId, access_token: accessToken, uris: tracks },
-    })
-      .then(async (res) => {
-        console.log(res.data);
-      })
-      .catch((err) => {
-        this.setState({ mobileIsAcitive: false, startStream: false });
-      });
   };
 
   openSpotifyApp = async () => {
@@ -160,20 +94,13 @@ class Playlist extends Component {
   };
 
   renderMobileStream = () => {
-    const { startStream, mobileIsAcitive } = this.state;
+    const { mobileIsAcitive, currentURI } = this.state;
 
-    if (startStream || mobileIsAcitive) {
+    if (mobileIsAcitive) {
       return (
-        <button
-          onClick={async () => {
-            const deviceId = await this.getMobileDeviceId();
-            this.setState({ deviceId });
-            this.setUpStreamForMobile();
-            this.trackSpotifyState();
-          }}
-        >
-          Start Experience
-        </button>
+        <div>
+          <p>{currentURI}</p>
+        </div>
       );
     } else {
       return (
@@ -183,7 +110,7 @@ class Playlist extends Component {
               this.openSpotifyApp();
             }}
           >
-            Open Spotify
+            Start Experience
           </button>
         </div>
       );
@@ -191,6 +118,13 @@ class Playlist extends Component {
   };
 
   renderDesktopStream = () => {
+    const { startStream, displayStream } = this.state;
+    const { playlist, accessToken } = this.props;
+
+    let tracks = playlist.tracks.map((track) => {
+      return track.uri;
+    });
+
     return (
       <div>
         <button
@@ -202,7 +136,20 @@ class Playlist extends Component {
           Start Experience
         </button>
 
-        {this.renderStream()}
+        {startStream ? (
+          <div style={{ opacity: displayStream ? 1 : 0, marginTop: 20 }}>
+            <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
+
+            <SpotifyPlayer
+              name={'Spotify Web (The Libra)'}
+              token={accessToken}
+              uris={tracks}
+              autoPlay={true}
+              persistDeviceSelection
+              syncExternalDevice
+            />
+          </div>
+        ) : null}
       </div>
     );
   };
@@ -235,8 +182,6 @@ class Playlist extends Component {
   };
 
   render() {
-    const { startStream, deviceId } = this.state;
-
     return (
       <div>
         {isMobile ? this.renderMobileStream() : this.renderDesktopStream()}
