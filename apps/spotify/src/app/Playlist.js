@@ -114,6 +114,8 @@ class Playlist extends Component {
     let uri = playlist.tracks[0].uri.split(':')[2];
 
     let link = `https://open.spotify.com/track/${uri}`;
+
+    window.location.href = link;
   };
 
   renderMobileStream = () => {
