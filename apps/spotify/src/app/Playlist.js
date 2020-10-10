@@ -16,12 +16,16 @@ class Playlist extends Component {
   }
 
   componentWillMount = async () => {
-    if (isMobile) {
-      const deviceId = await this.getMobileDeviceId();
-      if (deviceId !== undefined) {
-        this.setUpStreamForMobile();
+    const t = setInterval(async () => {
+      if (isMobile) {
+        const deviceId = await this.getMobileDeviceId();
+        this.setState({ deviceId });
+        if (deviceId !== undefined) {
+          this.setUpStreamForMobile();
+          clearInterval(t);
+        }
       }
-    }
+    }, 500);
   };
 
   getMobileDeviceId = async () => {
@@ -110,11 +114,6 @@ class Playlist extends Component {
     let uri = playlist.tracks[0].uri.split(':')[2];
 
     let link = `https://open.spotify.com/track/${uri}`;
-
-    window.location.href = link;
-
-    const deviceId = await this.getMobileDeviceId();
-    this.setState({ deviceId });
   };
 
   renderMobileStream = () => {
@@ -127,7 +126,7 @@ class Playlist extends Component {
             this.openSpotifyApp();
           }}
         >
-          {`Start Mobile Stream ${playlistId}`}
+          {`Start Mobile Stream`}
         </button>
       </div>
     );
