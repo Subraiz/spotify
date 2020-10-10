@@ -13,12 +13,43 @@ class Playlist extends Component {
       displayStream: true,
       deviceId: undefined,
       mobileIsAcitive: false,
+      currentURI: undefined,
     };
   }
 
   componentWillMount = async () => {
+    const { serverUrl, accessToken, playlist } = this.props;
+
+    let tracks = playlist.tracks.map((track) => {
+      return track.uri;
+    });
+
+    const t = setInterval(async () => {
+      const deviceId = await this.getMobileDeviceId();
+      if (deviceId !== undefined) {
+        let url = serverUrl + '/player/start';
+
+        await axios({
+          method: 'POST',
+          url,
+          data: {
+            device_id: deviceId,
+            access_token: accessToken,
+            uris: tracks,
+          },
+        })
+          .then(async (res) => {
+            console.log(res.data);
+            this.setState({ mobileIsAcitive: true, startStream: true });
+            clearInterval(t);
+          })
+          .catch((err) => {
+            this.setState({ mobileIsAcitive: false, startStream: false });
+          });
+      }
+    }, 1000);
+
     if (isMobile) {
-      const { serverUrl, accessToken } = this.props;
       const url = serverUrl + '/player/devices';
 
       await axios({
@@ -93,10 +124,6 @@ class Playlist extends Component {
             autoPlay={true}
             persistDeviceSelection
             syncExternalDevice
-            play={false}
-            callback={(state) => {
-              console.log(state);
-            }}
           />
         </div>
       );
@@ -134,7 +161,7 @@ class Playlist extends Component {
 
     window.location.href = link;
 
-    this.setState({ startStream: true });
+    //  this.setState({ startStream: true });
   };
 
   renderMobileStream = () => {
@@ -147,6 +174,7 @@ class Playlist extends Component {
             const deviceId = await this.getMobileDeviceId();
             this.setState({ deviceId });
             this.setUpStreamForMobile();
+            this.trackSpotifyState();
           }}
         >
           Start Experience
@@ -172,6 +200,7 @@ class Playlist extends Component {
       <div>
         <button
           onClick={() => {
+            this.trackSpotifyState();
             this.setState({ startStream: true });
           }}
         >
@@ -181,6 +210,33 @@ class Playlist extends Component {
         {this.renderStream()}
       </div>
     );
+  };
+
+  trackSpotifyState = () => {
+    const { accessToken, serverUrl } = this.props;
+
+    const t = setInterval(() => {
+      const url = serverUrl + '/player';
+
+      axios({
+        method: 'GET',
+        url,
+        params: { device_id: this.state.deviceId, access_token: accessToken },
+      })
+        .then((res) => {
+          let state = res.data;
+
+          const currentURI = state.item.uri;
+
+          if (currentURI !== this.state.currentURI) {
+            console.log(state);
+            this.setState({ currentURI });
+          }
+        })
+        .catch((err) => {
+          location.reload();
+        });
+    }, 1000);
   };
 
   render() {
