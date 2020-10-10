@@ -7,11 +7,12 @@ import { withRouter } from 'react-router';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import { CallbackState } from 'react-spotify-web-playback/lib/types';
 import { isMobile } from 'react-device-detect';
-import { SpotifyConnect } from '../components';
+import { SpotifyAuth } from '../components';
 import Animation from './Animation';
+import Playlist from './Playlist';
 
-//const serverUrl = 'https://localhost:4000/api';
-const serverUrl = 'https://starsignsbyti.com:4000/api';
+let serverUrl = 'http://localhost:5000/api';
+serverUrl = 'https://starsignsbyti.com:4000/api';
 
 const cookies = new Cookies();
 
@@ -85,86 +86,60 @@ class App extends Component {
       refreshToken: null,
       user: {},
       playlist: {},
-      birthMonth: 4,
-      birthDate: 5,
-      birthYear: 1998,
-      autoPlay: true,
-      startStream: false,
-      showStream: true,
-      renderAnimation: true,
     };
   }
 
   componentWillMount = async () => {
     let refreshToken = cookies.get('refresh_token');
-    let accessToken;
-    let userId = cookies.get('user_id');
-    let birth = cookies.get('birth');
 
     if (refreshToken === undefined) {
-      let urlParams = window.location.search;
+      if (window.location.search.includes('refresh_token')) {
+        let urlParams = window.location.search.split('=');
 
-      if (urlParams.includes('refresh_token')) {
-        urlParams = urlParams.split('=');
-
-        console.log(urlParams);
-
-        accessToken = urlParams[1].split('&')[0];
         refreshToken = urlParams[2].split('&')[0];
-        userId = urlParams[3];
+        let accessToken = urlParams[1].split('&')[0];
+        let userId = urlParams[3];
 
-        console.log(refreshToken);
-
-        const { birthMonth, birthDate, birthYear } = this.state;
-        cookies.set('birth', [birthMonth, birthDate, birthYear], { path: '/' });
         cookies.set('refresh_token', refreshToken, { path: '/' });
-        cookies.set('access_token', accessToken, { path: '/' });
-        cookies.set('user_id', userId, { path: '/' });
 
         const user = await this.getUser(accessToken);
         const playlist = await this.getPlaylist(
-          birthMonth,
-          birthDate,
+          cookies.get('birthMonth'),
+          cookies.get('birthDate'),
           accessToken
         );
 
-        if (user === undefined) {
-          this.setState({ authenticated: false, loading: false });
-        } else {
-          this.setState({
-            authenticated: true,
-            loading: false,
-            user,
-            playlist,
-            userId,
-            accessToken,
-            refreshToken,
-            playlist: playlist,
-          });
-        }
-
+        this.setState({
+          authenticated: true,
+          loading: false,
+          user,
+          playlist,
+          userId,
+          accessToken,
+          refreshToken,
+        });
         this.props.history.push('/');
       } else {
         this.setState({ authenticated: false, loading: false });
       }
     } else {
-      accessToken = await this.getNewAccessToken(refreshToken);
-      cookies.set('access_token', accessToken, { path: '/' });
-
+      let accessToken = await this.getNewAccessToken(refreshToken);
       const user = await this.getUser(accessToken);
-      const playlist = await this.getPlaylist(birth[0], birth[1], accessToken);
+      let userId = user.id;
+      const playlist = await this.getPlaylist(
+        cookies.get('birthMonth'),
+        cookies.get('birthDate'),
+        accessToken
+      );
 
       this.setState({
         authenticated: true,
         loading: false,
         user,
+        playlist,
         userId,
         refreshToken,
         accessToken,
-        playlist: playlist,
-        birthDate: birth[1],
-        birthMonth: birth[0],
-        birthYear: birth[2],
       });
     }
   };
@@ -221,159 +196,8 @@ class App extends Component {
     return playlist;
   };
 
-  handleBirthChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  renderPlaylist = () => {
-    const { playlist } = this.state;
-
-    return playlist.tracks.map((song, i) => {
-      return <button key={i}>{song.name}</button>;
-    });
-  };
-
-  renderStream = () => {
-    const { accessToken, startStream, showStream, playlist } = this.state;
-
-    let tracks = playlist.tracks.map((track) => {
-      return track.uri;
-    });
-
-    if (startStream) {
-      return (
-        <div style={{ opacity: showStream ? 1 : 0, marginTop: 20 }}>
-          <div style={{ marginBottom: 20 }}>{this.renderPlaylist()}</div>
-
-          <SpotifyPlayer
-            name={'Spotify Web (The Libra)'}
-            token={accessToken}
-            uris={tracks}
-            autoPlay={true}
-            persistDeviceSelection
-            syncExternalDevice
-            play={false}
-            callback={(state) => {
-              console.log(state);
-            }}
-          />
-        </div>
-      );
-    }
-  };
-
-  setUpStreamForMobile = async () => {
-    const { playlist, accessToken } = this.state;
-
-    let tracks = playlist.tracks.map((track) => {
-      return track.uri;
-    });
-
-    let url = 'https://api.spotify.com/v1/me/player/devices';
-
-    await axios({
-      method: 'GET',
-      url,
-      headers: { Authorization: 'Bearer ' + accessToken },
-    }).then(async (res) => {
-      let device_id;
-      for (let i = 0; i < res.data.devices.length; i++) {
-        const device = res.data.devices[i];
-        if (device.type === 'Smartphone') {
-          device_id = device.id;
-        }
-      }
-
-      if (device_id === undefined) {
-        console.log('could not find phone please open the app');
-        return;
-      }
-
-      url = 'https://api.spotify.com/v1/me/player/play';
-
-      await axios({
-        method: 'PUT',
-        url,
-        headers: { Authorization: 'Bearer ' + accessToken },
-        params: { device_id: device_id },
-        data: {
-          uris: tracks,
-        },
-      }).then((res) => {});
-    });
-  };
-
-  renderSpotifyConnect = () => {
-    const { authenticated, user, accessToken } = this.state;
-    const { birthMonth, birthDate, birthYear } = this.state;
-    const {
-      playlist,
-
-      autoPlay,
-      startStream,
-      showStream,
-    } = this.state;
-
-    if (authenticated) {
-      return (
-        <div>
-          {!startStream ? (
-            <div>
-              {isMobile ? (
-                <p>
-                  Hey we noticed your on a mobile device. Please open the
-                  spotify app in the background to continue.
-                </p>
-              ) : null}
-              <button
-                id="start-button"
-                onClick={() => {
-                  if (isMobile) {
-                    this.setUpStreamForMobile();
-                  } else {
-                    this.setState({ startStream: true });
-                  }
-                }}
-              >
-                Start Experience
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => {
-                this.setState({ showStream: !this.state.showStream });
-              }}
-            >
-              Toggle Stream Display
-            </button>
-          )}
-
-          {this.renderStream()}
-        </div>
-      );
-    } else {
-      return (
-        <SpotifyConnect
-          serverUrl={serverUrl}
-          month={birthMonth}
-          year={birthYear}
-          day={birthDate}
-          handleInputChange={this.handleBirthChange.bind(this)}
-        />
-      );
-    }
-  };
-
   render() {
-    const {
-      authenticated,
-      loading,
-      user,
-      playlist,
-      renderAnimation,
-    } = this.state;
+    const { loading, authenticated, accessToken, playlist } = this.state;
 
     if (!loading) {
       return (
@@ -385,7 +209,17 @@ class App extends Component {
               Horoscopes, I put together some hororscopes for your zodiac sign.
             </p>
           </FirstContainer>
-          <SecondContainer>{this.renderSpotifyConnect()}</SecondContainer>
+          <SecondContainer>
+            {authenticated ? (
+              <Playlist
+                accessToken={accessToken}
+                playlist={playlist}
+                serverUrl={serverUrl}
+              />
+            ) : (
+              <SpotifyAuth serverUrl={serverUrl} />
+            )}
+          </SecondContainer>
           <ThirdContainer>
             <button>Share</button>
             <button>Stream</button>

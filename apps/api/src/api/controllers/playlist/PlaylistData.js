@@ -19,7 +19,7 @@ module.exports = {
   },
   aries: {
     sign: 'aries',
-    playlist_id: '4WhRxXKdXve79XvHjVlJhl',
+    playlist_id: '6iyXsTsmFiEvToBQY1Bhko',
     name: 'Aries',
     description: '',
   },

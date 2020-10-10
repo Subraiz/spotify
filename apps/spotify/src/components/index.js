@@ -1,1 +1,1 @@
-export * from './SpotifyConnect';
+export * from './SpotifyAuth';

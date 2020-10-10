@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import Cookies from 'universal-cookie';
 import { Route, Link } from 'react-router-dom';
+
+const cookies = new Cookies();
 
 const Container = styled.div`
   display: flex;
@@ -44,14 +47,32 @@ const Container = styled.div`
   }
 `;
 
-class SpotifyConnect extends Component {
+class SpotifyAuth extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+
+    this.state = {
+      birthMonth: 4,
+      birthDate: 5,
+      birthYear: 1998,
+    };
   }
 
+  componentWillMount = () => {
+    cookies.set('birthMonth', this.state.birthMonth, { path: '/' });
+    cookies.set('birthDate', this.state.birthDate, { path: '/' });
+    cookies.set('birthYear', this.state.birthYear, { path: '/' });
+  };
+
+  handleBirthChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+    cookies.set(e.target.name, e.target.value, { path: '/' });
+  };
+
   render() {
-    const { month, day, year } = this.props;
+    const { birthMonth, birthDate, birthYear } = this.state;
     return (
       <Container>
         <img
@@ -67,20 +88,20 @@ class SpotifyConnect extends Component {
           <input
             placeholder="Month"
             name="birthMonth"
-            value={month}
-            onChange={(e) => this.props.handleInputChange(e)}
+            value={birthMonth}
+            onChange={(e) => this.handleBirthChange(e)}
           />
           <input
             placeholder="Day"
             name="birthDate"
-            value={day}
-            onChange={(e) => this.props.handleInputChange(e)}
+            value={birthDate}
+            onChange={(e) => this.handleBirthChange(e)}
           />
           <input
             placeholder="Year"
             name="birthYear"
-            value={year}
-            onChange={(e) => this.props.handleInputChange(e)}
+            value={birthYear}
+            onChange={(e) => this.handleBirthChange(e)}
           />
         </div>
         <a href={`${this.props.serverUrl}/auth`}>Connect to Spotify</a>
@@ -89,4 +110,4 @@ class SpotifyConnect extends Component {
   }
 }
 
-export { SpotifyConnect };
+export { SpotifyAuth };
