@@ -12,7 +12,7 @@ import Animation from './Animation';
 import Playlist from './Playlist';
 
 let serverUrl = 'http://localhost:5000/api';
-//serverUrl = 'https://starsignsbyti.com:4000/api';
+serverUrl = 'https://starsignsbyti.com:4000/api';
 
 const cookies = new Cookies();
 
