@@ -9,6 +9,7 @@ import {
 } from 'react-share';
 import SpotifyPlayer, { STATUS } from 'react-spotify-web-playback';
 import axios from 'axios';
+const Aries = require('../assets/audio/Cancer 1.mp3');
 
 const PlaylistContainer = styled.div`
   background: none;
@@ -245,8 +246,27 @@ class Playlist extends Component {
     }
   };
 
-  saveSpotifyPlaylist = () => {
-    const { serverUrl, accessToken } = this.props;
+  saveSpotifyPlaylist = async () => {
+    const { serverUrl, accessToken, userId, playlist } = this.props;
+
+    const url = serverUrl + '/playlist/save';
+
+    await axios({
+      method: 'POST',
+      url,
+      data: {
+        access_token: accessToken,
+        user_id: userId,
+        playlist_id: playlist.playlist_id,
+      },
+    })
+      .then((res) => {
+        // Redirect to share screen
+      })
+      .catch((err) => {
+        // Handle error
+        console.log(err);
+      });
   };
 
   togglePlayingMusic = () => {
@@ -382,7 +402,12 @@ class Playlist extends Component {
 
           <PlayerContainer>
             <ShareContainer>
-              <button className="save-btn" onClick={() => {}}>
+              <button
+                className="save-btn"
+                onClick={() => {
+                  this.saveSpotifyPlaylist();
+                }}
+              >
                 Save to Library
               </button>
               <SocialMediaContainer>

@@ -266,7 +266,13 @@ class App extends Component {
   };
 
   render() {
-    const { loading, authenticated, accessToken, playlist } = this.state;
+    const {
+      loading,
+      authenticated,
+      accessToken,
+      playlist,
+      userId,
+    } = this.state;
 
     if (!loading) {
       return (
@@ -290,6 +296,7 @@ class App extends Component {
                 accessToken={accessToken}
                 playlist={playlist}
                 serverUrl={serverUrl}
+                userId={userId}
               />
             ) : (
               <SpotifyAuth serverUrl={serverUrl} />
