@@ -55,7 +55,7 @@ AuthRouter.get(
     const { accessToken, refreshToken, profile } = req._passport.session.user;
 
     const user = Auth.createUser(profile, accessToken, refreshToken);
-    //Auth.uploadUser(user);
+    Auth.uploadUser(user);
 
     // Redirect back to the frontend and pass in both tokens as querys
     const query = querystring.stringify({
