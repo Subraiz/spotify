@@ -11,8 +11,6 @@ admin.initializeApp({
 const db = admin.firestore();
 
 module.exports.createUser = (profile, accessToken, refreshToken) => {
-  console.log(profile.emails);
-
   const user = {
     name: profile.displayName,
     userId: profile.id,
@@ -25,6 +23,7 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
   };
 
   if (profile.emails !== undefined) {
+    console.log('do not add email');
     user['emails'] = profile.emails;
   }
 
