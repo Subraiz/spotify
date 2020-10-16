@@ -23,16 +23,13 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
   };
 
   if (profile.emails !== undefined) {
-    console.log('do not add email');
-    user['emails'] = profile.emails;
+    user['emails'] = '';
   }
 
   return user;
 };
 
 module.exports.checkForUserError = (user) => {
-  console.log('user', user);
-
   db.collection('Users')
     .doc(user.userId)
     .set(user, { merge: true })
