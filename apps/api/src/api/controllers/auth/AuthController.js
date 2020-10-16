@@ -11,11 +11,11 @@ admin.initializeApp({
 const db = admin.firestore();
 
 module.exports.createUser = (profile, accessToken, refreshToken) => {
-  console.log('profile', profile);
+  console.log(profile.emails);
 
   const user = {
     name: profile.displayName,
-    email: undefined || profile.emails[0].value,
+    email: profile.emails,
     userId: profile.id,
     country: profile.country,
     profileUrl: profile.profileUrl,
