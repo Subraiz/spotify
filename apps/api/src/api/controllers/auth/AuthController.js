@@ -26,16 +26,18 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
   return user;
 };
 
-module.exports.uploadUser = (user) => {
+module.exports.checkForUserError = (user) => {
   db.collection('Users')
     .doc(user.userId)
     .set(user, { merge: true })
     .then(function () {
-      console.log('Document has been uploaded');
+      console.log('No error exists in user object');
     })
     .catch(function (error) {
-      console.error('Error writing document: ', error);
+      console.error('Error in user object: ', error);
     });
+
+  return false;
 };
 
 module.exports.refreshAccessToken = async (refresh_token, req, res) => {
