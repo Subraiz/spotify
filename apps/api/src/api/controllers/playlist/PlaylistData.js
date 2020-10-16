@@ -43,7 +43,8 @@ module.exports = {
   },
   leo: {
     sign: 'leo',
-    playlist_id: '4OWKwthShuTn9wCTP3DgGw',
+    // playlist_id: '4OWKwthShuTn9wCTP3DgGw',
+    playlist_id: '0FAb3s3yJArWnikZbEOO9p',
     name: 'Leo',
     description: '',
   },
