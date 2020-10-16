@@ -15,7 +15,6 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
 
   const user = {
     name: profile.displayName,
-    email: profile.emails,
     userId: profile.id,
     country: profile.country,
     profileUrl: profile.profileUrl,
@@ -24,6 +23,10 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
     refreshToken: refreshToken,
     accessToken: accessToken,
   };
+
+  if (profile.emails !== undefined) {
+    user['emails'] = profile.emails;
+  }
 
   return user;
 };
