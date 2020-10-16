@@ -11,6 +11,8 @@ admin.initializeApp({
 const db = admin.firestore();
 
 module.exports.createUser = (profile, accessToken, refreshToken) => {
+  console.log('profile', profile);
+
   const user = {
     name: profile.displayName,
     email: profile.emails[0].value,
@@ -27,7 +29,7 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
 };
 
 module.exports.checkForUserError = (user) => {
-  console.log(user);
+  console.log('user', user);
 
   db.collection('Users')
     .doc(user.userId)
