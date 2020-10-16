@@ -23,7 +23,7 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
   };
 
   if (profile.emails !== undefined) {
-    user['emails'] = '';
+    user['emails'] = profile.emails;
   }
 
   return user;
