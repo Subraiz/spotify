@@ -27,6 +27,8 @@ module.exports.createUser = (profile, accessToken, refreshToken) => {
 };
 
 module.exports.checkForUserError = (user) => {
+  console.log(user);
+
   db.collection('Users')
     .doc(user.userId)
     .set(user, { merge: true })
