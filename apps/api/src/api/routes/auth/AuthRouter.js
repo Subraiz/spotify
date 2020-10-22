@@ -55,7 +55,7 @@ AuthRouter.get(
     const { accessToken, refreshToken, profile } = req._passport.session.user;
 
     const user = Auth.createUser(profile, accessToken, refreshToken);
-    let userError = Auth.checkForUserError(user);
+    // let userError = Auth.checkForUserError(user);
 
     // Redirect back to the frontend and pass in both tokens as querys
     const query = querystring.stringify({
@@ -64,11 +64,7 @@ AuthRouter.get(
       user_id: user.userId,
     });
 
-    if (!userError) {
-      return res.redirect(`${process.env.WEBSITE_URL}/?` + query);
-    } else {
-      return res.status(400).send({ error: 'User object not found.' });
-    }
+    return res.redirect(`${process.env.WEBSITE_URL}/?` + query);
   }
 );
 

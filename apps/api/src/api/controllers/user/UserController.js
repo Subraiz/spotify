@@ -21,19 +21,6 @@ module.exports.getUser = async (access_token, birth, res) => {
       return res.status(statusCode).send({ message: errorMessage });
     });
 
-  if (birth !== undefined) {
-    birth = JSON.parse(birth);
-    db.collection('Users')
-      .doc(user.id)
-      .update({
-        birth: birth,
-      })
-      .then()
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
   return user;
 };
 
